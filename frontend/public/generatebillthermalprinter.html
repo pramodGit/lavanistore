@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BILL</title>
+    <style>
+        :root { --primary: #2c3e50; --bg: #f4f7f6; --accent: #2980b9; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; gap: 30px; justify-content: center; }
+
+        /* Left Control Panel */
+        .controls { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 320px; height: fit-content; }
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 5px; color: #555; text-transform: uppercase; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        
+        .button-group { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-add { background: #27ae60; color: white; }
+        .btn-print { background: var(--accent); color: white; }
+        .btn-clear { background: #95a5a6; color: white; }
+        .btn-logo { background: #fff; color: #333; border: 1px solid #ccc; font-size: 12px; }
+
+        /* Thermal Receipt Styling */
+        #receipt {
+            background: #fff;
+            width: 80mm;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            color: #000;
+        }
+
+        #logo-preview { max-width: 40mm; max-height: 25mm; margin: 0 auto 10px; display: none; object-fit: contain; }
+
+        [contenteditable="true"]:hover { background: #f9fbff; outline: 1px dashed var(--accent); }
+
+        .text-center { text-align: center; }
+        .dashed { border-bottom: 1px dashed #000; margin: 10px 0; }
+        .receipt-table { width: 100%; border-collapse: collapse; }
+        .receipt-table th { border-bottom: 1px solid #000; text-align: left; padding-bottom: 5px; }
+        .receipt-table td { padding: 6px 0; vertical-align: top; }
+        
+        .flex { display: flex; justify-content: space-between; align-items: center; }
+        .grand-total { font-size: 16px; font-weight: bold; }
+
+        @media print {
+            .controls, .no-print { display: none !important; }
+            body { background: white; padding: 0; justify-content: center; }
+            #receipt { box-shadow: none; width: 80mm; padding: 20; }
+
+        }
+    </style>
+</head>
+<body>
+
+<div class="controls no-print">
+    <h3 style="margin-top:0">Billing Settings</h3>
+    
+    <div class="input-group">
+        <label>Restaurant Logo</label>
+        <button class="btn-logo" onclick="document.getElementById('logoInput').click()">Upload Logo</button>
+        <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="loadLogo(event)">
+    </div>
+
+    <div class="input-group">
+        <label>Item Name</label>
+        <input type="text" id="customName" placeholder="e.g. Karahi Paneer">
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+        <div style="flex: 2;">
+            <label>Price (₹)</label>
+            <input type="number" id="customPrice" placeholder="0.00">
+        </div>
+        <div style="flex: 1;">
+            <label>Qty</label>
+            <input type="number" id="customQty" value="1">
+        </div>
+    </div>
+
+    <div class="button-group">
+        <button class="btn-add" onclick="addItem()">Add to Bill</button>
+        <hr style="width:100%; border:0; border-top:1px solid #eee; margin: 10px 0;">
+        <button class="btn-print" onclick="window.print()">Print Receipt</button>
+        <button class="btn-clear" onclick="resetAll()">New Bill</button>
+    </div>
+</div>
+
+<div id="receipt">
+    <div class="text-center">
+        <img id="logo-preview" src="" alt="Logo"> 
+        <h2 contenteditable="true" style="margin: 0;">APNI RASOI (BURARI)</h2>
+        <div contenteditable="true" style="font-size: 11px; line-height: 1.4;">
+            KH NO. 471/1 KAUSHIK ENCLAVE, 100<br>
+            Futta road, New Delhi-110084<br>
+            GST- 07AAXFV4786H1Z7
+        </div>
+    </div>
+
+    <div class="dashed"></div>
+    <div class="flex">
+        <span>Date: <b id="dateDisplay" contenteditable="true"></b></span>
+        <span>Bill: #<b id="billId" contenteditable="true">41173</b></span>		
+    </div>
+    <div class="dashed"></div>
+
+    <table class="receipt-table">
+        <thead>
+            <tr>
+                <th style="width: 55%;">Item</th>
+                <th style="width: 15%;">Qty</th>
+                <th style="width: 30%; text-align: right;">Total</th>
+            </tr>
+        </thead>
+        <tbody id="billItems">
+            </tbody>
+    </table>
+
+    <div class="dashed"></div>
+    <div class="flex"><span>Sub Total:</span> <span id="sub">0.00</span></div>
+    <div class="flex"><span>CGST (2.5%):</span> <span id="cgst">0.00</span></div>
+    <div class="flex"><span>SGST (2.5%):</span> <span id="sgst">0.00</span></div>
+    <div class="dashed"></div>
+    <div class="flex grand-total">
+        <span>GRAND TOTAL:</span>
+        <span id="grand">₹ 0.00</span>
+    </div>
+    <div class="dashed"></div>
+    <p class="text-center" contenteditable="true" style="font-size: 10px;">Thanks to Visit Apni Rasoi</p>
+</div>
+
+<script>
+    let basket = [];
+    
+    // Set Default Date
+    const now = new Date();
+    document.getElementById('dateDisplay').innerText = now.toLocaleDateString();
+
+    function loadLogo(event) {
+        const output = document.getElementById('logo-preview');
+        output.src = URL.createObjectURL(event.target.files[0]);
+        output.style.display = 'block';
+    }
+
+    function addItem() {
+        const name = document.getElementById('customName').value;
+        const price = parseFloat(document.getElementById('customPrice').value);
+        const qty = parseInt(document.getElementById('customQty').value);
+
+        if(!name || isNaN(price)) return;
+
+        basket.push({ name, price, qty, total: price * qty });
+        render();
+        
+        document.getElementById('customName').value = '';
+        document.getElementById('customPrice').value = '';
+        document.getElementById('customQty').value = '1';
+    }
+
+    function render() {
+        const container = document.getElementById('billItems');
+        container.innerHTML = '';
+        let subtotal = 0;
+
+        basket.forEach(item => {
+            subtotal += item.total;
+            container.innerHTML += `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.qty}</td>
+                    <td style="text-align: right;">${item.total.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+
+        const tax = subtotal * 0.025;
+        const grand = subtotal + (tax * 2);
+
+        document.getElementById('sub').innerText = subtotal.toFixed(2);
+        document.getElementById('cgst').innerText = tax.toFixed(2);
+        document.getElementById('sgst').innerText = tax.toFixed(2);
+        document.getElementById('grand').innerText = "₹ " + Math.round(grand).toFixed(2);
+    }
+
+    function resetAll() {
+        if(confirm("Start a new bill?")) {
+            basket = [];
+            document.getElementById('billId').innerText = Math.floor(Math.random()*90000)+10000;
+            render();
+        }
+    }
+</script>
+
+</body>
+</html>

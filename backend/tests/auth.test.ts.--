@@ -1,0 +1,25 @@
+import axios from 'axios';
+import { login } from '../controllers/auth';
+
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+
+describe('login', () => {
+  it('should return accessToken when credentials are valid', async () => {
+    const mockToken = 'fake-jwt-token';
+    mockedAxios.post.mockResolvedValue({ data: { accessToken: mockToken } });
+
+    const token = await login('test@example.com', 'password123');
+    expect(token).toBe(mockToken);
+    expect(mockedAxios.post).toHaveBeenCalledWith('/login', {
+      email: 'test@example.com',
+      password: 'password123'
+    });
+  });
+
+  it('should throw an error on failed login', async () => {
+    mockedAxios.post.mockRejectedValue(new Error('Invalid credentials'));
+
+    await expect(login('invalid@example.com', 'wrongpass')).rejects.toThrow('Invalid credentials');
+  });
+});

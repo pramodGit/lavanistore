@@ -1,0 +1,211 @@
+/* ======================
+   LAYOUT CONTAINER
+   ====================== */
+.dashboard {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #222;
+}
+
+/* ======================
+   HEADER TOP ALIGNMENT
+   ====================== */
+.dashboard-header-top {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* responsive stacking */
+  gap: 0.5rem;
+}
+
+.dashboard-header-top h2 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin: 0;
+  color: #222;
+}
+
+.dashboard-email {
+  text-align: right; /* 👈 right align email text */
+  font-size: 1.5rem;
+  color: #555;
+  flex-shrink: 0; /* prevents email from wrapping oddly */
+}
+
+@media (max-width: 768px) {
+  .dashboard-header-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-email {
+    text-align: left; /* stack nicely on mobile */
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}
+
+
+/* ======================
+   TOPBAR (Search & Title)
+   ====================== */
+.dashboard-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-topbar h3 {
+  font-size: 2.25rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.dashboard-topbar input {
+  padding: 0.6rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.4rem;
+  font-size: 1.5rem;
+  min-width: 16rem;
+  transition: all 0.2s ease;
+}
+
+.dashboard-topbar input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+}
+
+/* ======================
+   TABLE
+   ====================== */
+.dashboard-table-container {
+  overflow-x: auto;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1.5rem;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  border: 1px solid #ddd;
+  padding: 0.8rem 0.75rem;
+  text-align: left;
+}
+
+.dashboard-table th {
+  background-color: #f8f8f8;
+  font-weight: 600;
+}
+
+.dashboard-table tr:hover {
+  background-color: #fdfdfd;
+  transition: background-color 0.2s ease;
+}
+
+/* ======================
+   PAGINATION
+   ====================== */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  font-size: 1rem;
+}
+
+.pagination button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #f2f2f2;
+  transform: scale(1.03);
+}
+
+.pagination button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 1rem;
+  color: #333;
+}
+
+/* ======================
+   RESPONSIVE STYLES
+   ====================== */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1.5rem 1rem;
+  }
+
+  .dashboard-table,
+  .dashboard-table thead,
+  .dashboard-table tbody,
+  .dashboard-table th,
+  .dashboard-table td,
+  .dashboard-table tr {
+    display: block;
+  }
+
+  .dashboard-table thead {
+    display: none;
+  }
+
+  .dashboard-table tr {
+    margin-bottom: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 0.6rem;
+    padding: 1rem;
+    background-color: #fff;
+  }
+
+  .dashboard-table td {
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+    font-size: 1rem;
+  }
+
+  .dashboard-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #333;
+    flex-basis: 40%;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .dashboard-topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dashboard-topbar input {
+    width: 100%;
+    min-width: unset;
+  }
+}

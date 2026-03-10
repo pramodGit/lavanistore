@@ -1,0 +1,41 @@
+.our-brand {
+  padding: .4rem .6rem;
+  text-align: center;
+}
+
+.our-brand h2 {
+  margin-bottom: 12px;
+}
+
+.brand-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 40px;
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+/* Skeleton loading effect */
+.brand-skeleton {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Square placeholders */
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    #bffdf9 25%,
+    #bffdf9 20%,
+    #b1fcf7 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+/* Shimmer keyframes */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

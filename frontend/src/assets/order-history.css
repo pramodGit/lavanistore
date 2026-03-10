@@ -1,0 +1,161 @@
+/* ===== Page Container ===== */
+.dashboard {
+  padding: 20px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* ===== Header ===== */
+.dashboard-header {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.dashboard-header h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.dashboard-header p {
+  font-size: 0.95rem;
+  color: #444;
+  margin-top: 5px;
+}
+
+/* ===== Top Bar (Search + Title) ===== */
+.dashboard-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 10px;
+}
+
+.dashboard-topbar h3 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.dashboard-topbar input {
+  padding: 8px 12px;
+  font-size: 1rem;
+  width: 220px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* ===== Table Styling ===== */
+.dashboard-table-container {
+  overflow-x: auto; /* Horizontal scroll for smaller screens */
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  background: white;
+}
+
+.dashboard-table thead {
+  background: #f4f4f4;
+  border-bottom: 2px solid #ccc;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #eee;
+}
+
+.dashboard-table td a {
+  color: #0a66c2;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.dashboard-table td a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Pagination ===== */
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.pagination button {
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
+  background-color: #222;
+  color: white;
+  transition: 0.3s;
+}
+
+.pagination button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #0a66c2;
+}
+
+/* ===== Mobile Responsive Changes ===== */
+@media (max-width: 768px) {
+
+  .dashboard-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-topbar input {
+    width: 100%;
+  }
+
+  .dashboard-table th {
+    display: none; /* Hide table header on small viewports */
+  }
+
+  .dashboard-table tr {
+    display: block;
+    margin-bottom: 12px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+    padding: 8px;
+  }
+
+  .dashboard-table td {
+    display: flex;
+    justify-content: space-between;
+    border: none;
+    padding: 10px 6px;
+    font-size: 0.95rem;
+  }
+
+  .dashboard-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    text-transform: capitalize;
+    flex-basis: 50%;
+    text-align: left;
+  }
+
+  .pagination span {
+    font-size: 0.9rem;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .dashboard-header h2 {
+    font-size: 1.2rem;
+  }
+}

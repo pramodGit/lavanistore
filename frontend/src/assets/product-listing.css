@@ -1,0 +1,178 @@
+@keyframes shimmer {
+    to {
+      background-position-x: 0%;
+    }
+  }
+  section.main {
+    flex-flow: wrap;
+    min-height: 50vh;
+    padding: 10px 0;
+    display: flex
+;
+  }
+  section.main .products {
+    width: 77%;
+  }
+  section.main .products .product-grid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 3rem;
+    padding: 7px;
+  }
+  section.main .products .item {
+    display: grid;
+    flex: 1 0 30%;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 5px;
+    height: 260px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+  }
+  section.main .products .item.shimmer {
+    background: linear-gradient(-45deg, #d2d9f5 40%, #d2d9f5 50%, #d2d9f5 60%);
+    background-size: 300%;
+    background-position-x: 100%;
+    animation: shimmer 1s infinite linear;
+  }
+  
+  section.main .products .item .image {
+    width: 100%;
+    height: 145px;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  section.main .products .item figcaption,
+  section.main .products .item .price,
+  section.main .products .item .btn {
+    display: flex;
+    justify-content: center;
+  }
+  section.main .products .item .btn button { width: 100%;}
+  /* ==== sidebar [START] ==== */
+  section.main aside {
+    width: 20%;
+    margin: 0 1rem;
+  }
+  section.main aside h3 {
+    font-size: 1.48rem;
+    padding: 1.6rem 0;
+  }
+  #clearAllFilter,
+  #filterPopupBtn {
+    display: none;
+  }
+  section.main aside .side-filter-nav .title {
+    border-top-color: #ccc;
+    border-bottom-color: #ccc;
+    border-width: 1px 0;
+    border-style: solid;
+    flex-flow: wrap;
+  }
+  section.main aside .side-filter-nav .field {
+    font-size: 1.2rem;
+  }
+  .side-filter-nav .checkbox input[type="checkbox"] {
+    vertical-align: sub;
+    margin: 0 5px 0 0;
+  }
+  section.main aside .side-filter-nav > ul {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 15px;
+  }
+  section.main aside .side-filter-nav > ul > li {
+    display: flex;
+    flex-direction: column;
+  }
+  section.main aside .side-filter-nav > ul > li.text {
+    display: block;
+  }
+  @media only screen and (max-width: 768px) {
+    section.main aside,
+    ul.breadcrumb {
+      display: none;
+    }
+    section.main aside.visiblity {
+      display: grid;
+      background-color: #fff;
+      width: 300px;
+      position: fixed;
+      right: 0;
+      top: 0;
+      z-index: 2;
+      margin: 0;
+      padding: 0 0 15px 0px;
+    }
+    section.main aside.visiblity li,
+    section.main aside .side-filter-nav .title {
+      padding-left: 15px;
+    }
+    section.main aside.visiblity h3 {
+      display: grid;
+      grid-template-columns: 6fr 1fr;
+      background-color: #f1f1f1;
+      padding-left: 15px;
+    }
+    #clearAllFilter,
+    #filterPopupBtn {
+      display: block;
+    }
+    #clearAllFilter {
+      font-size: 1.2rem;
+      line-height: 1.2rem;
+      margin-top: 10px;
+    }
+    #sideBar .menu-drawer-close-icon {
+      display: inline-block;
+    }
+  }
+  /* ==== sidebar [END] ==== */
+
+  @media (min-width: 768) {
+    section.main {
+      margin-top: 20px;
+    }
+  }
+  @media only screen and (max-width: 768px) {
+    section.main {
+      margin-top: 70px;
+    }
+    section.main .products {
+      width: 100%;
+      flex-direction: column;
+    }
+    section.main .products .item {
+      flex: 1 0 30%;
+    }
+  }
+  @media only screen and (max-width: 640px) {
+    section.main .products .item {
+      flex: 1 0 40%;
+    }
+  }
+  /* Tablet screens: iPad Pro, iPad Air, etc. */
+@media only screen and (max-width: 1024px) {
+  section.main {
+    flex-direction: column;   /* stack sidebar on top */
+  }
+
+  section.main aside {
+    width: 100%;
+    order: 1;                 /* sidebar goes above products */
+    margin: 0 0 1rem 0;
+    display: block !important;
+  }
+
+  section.main .products {
+    width: 100%;
+    order: 2;
+  }
+}
+
+  

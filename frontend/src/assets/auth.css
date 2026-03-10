@@ -1,0 +1,174 @@
+.auth-form {
+  --surface: #ffffff;
+  --muted: #6b7280;
+  --accent: #e9defe;
+  --border: #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  /* border: #f3f4f4 8px solid; */
+  padding: 20px 25px 30px;
+  margin: 0 33rem 2rem;
+}
+.auth-form > * {
+  width: 84%;
+}
+.auth-form h1 {
+  line-height: 1.4;
+  font-size: 3rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  text-align: center;
+  color: #000;
+}
+.auth-form h1 a {
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 2;
+  color: blue;
+  float: right;
+}
+.auth-form li {
+  margin: 7px 0;
+}
+.auth-form button {
+  cursor: pointer;
+  border: none;
+  border-radius: 99px;
+  height: 36px;
+  margin-top: 15px;
+  background: #e9defe;
+}
+.auth-form button:hover {
+  background: #014489;
+  color: #fff;
+}
+.auth-form input,
+.auth-form select {
+  border: 1px solid #888c8c;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(15 17 17 / 15%) inset;
+  width: 100%;
+  padding: 4px;
+  line-height: 2;
+}
+.auth-form a {
+  font-size: 1.4rem;
+  color: rgb(255, 81, 0);
+}
+.auth-form .message {
+  font-size: 1.4rem;
+}
+.auth-form .message.success {
+  color: green;
+}
+.auth-form .message.error {
+  color: red;
+}
+
+.auth-form .reg-title {
+  font-size: 18px;
+  margin-bottom: 14px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.auth-form .field {
+  position: relative;
+  margin-bottom: 7px;
+}
+
+.auth-form .field-label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.auth-form .input-with-icon {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 7px;
+  background: #fdfdfd;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.auth-form .input-with-icon:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.06);
+}
+
+.auth-form .icon-box {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  flex: 0 0 20px;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="email"],
+.auth-form input[type="password"],
+.auth-form input[type="tel"] {
+  border: 0;
+  outline: 0;
+  font-size: 14px;
+  flex: 1;
+  background: transparent;
+  color: #111827;
+}
+.auth-form input[readonly] { color: #9c9c9c;}
+
+.auth-form input::placeholder {
+  color: #9c9c9c;
+}
+
+.auth-form .action-btn {
+  background: transparent;
+  border: 0;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-form .action-btn:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.16);
+}
+
+.auth-form .helper {
+  font-size: 1.3rem;
+  color: var(--muted);
+  margin: 6px 0;
+}
+.auth-form .text-red { color: red;}
+
+/* iPad Pro + iPad Air fix */
+@media (max-width: 1024px) {
+  .auth-form {
+    margin: 0 auto !important;
+    width: 90%;
+    padding: 20px;
+  }
+}
+
+/* Fix flexbox preventing input typing */
+.auth-form,
+.auth-form > *,
+.auth-form .input-with-icon {
+  min-width: 0 !important;
+}
+
+/* Prevent iOS overflow blocking text input */
+.auth-form * {
+  overflow: visible !important;
+}
+

@@ -1,0 +1,152 @@
+openapi: 3.0.0
+info:
+  title: Avani Wellness API
+  version: 1.0.0
+  description: API documentation Avani Wellness.
+
+servers:
+  - url: http://localhost:5000/api-doc
+
+paths:
+  /user-level-report:
+    post:
+      tags:
+        - Dashboard Reports
+      summary: Fetch User level reports
+      description: Returns levels for a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user
+              properties:
+                user:
+                  type: string
+                  example: "Pramod Kumar"
+      responses:
+        '200':
+          description: level statistics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Level'
+        '400':
+          description: Missing or invalid name
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Name is required"
+                    
+  /user-reward-report:
+    post:
+      tags:
+        - Dashboard Reports
+      summary: Fetch Rewards report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user
+              properties:
+                user:
+                  type: string
+                  example: "Pramod Kumar"
+      responses:
+        "200":
+          description: List of Rewards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reward'
+        '400':
+          description: Missing or invalid name
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Name is required"
+                    
+components:
+  schemas:
+    Reward:
+      type: object
+      properties:
+        level:
+          type: integer
+          example: 1
+        requiredDirect:
+          type: integer
+          example: 2
+        requiredTeam:
+          type: integer
+          example: 32
+        yourDirectTeam:
+          type: integer
+          example: 3
+        yourActiveTeam:
+          type: integer
+          example: 0
+        remainingTeam:
+          type: integer
+          example: 32
+        timeLimit:
+          type: string
+          example: "10 Days"
+        remainingTime:
+          type: string
+          example: "2 Days"
+        reward:
+          type: string
+          example: "Samsung Tablet"
+        income:
+          type: number
+          example: 160000
+        achievedDate:
+          type: string
+          format: date-time
+          example: "2025-08-23T00:00:00Z"
+        status:
+          type: string
+          enum: ["Activated", "Expired", "Pending"]
+          example: "Activated"
+
+    Level:
+      type: object
+      properties:
+        level:
+          type: string
+          example: "Level 1"
+        requiredTeam:
+          type: integer
+          example: 3
+        totalTeam:
+          type: integer
+          example: 2
+        activeTeam:
+          type: integer
+          example: 1
+        income:
+          type: number
+          example: 350
+        status:
+          type: string
+          enum: ["Activated", "Pending"]
+          example: "Activated"
+
