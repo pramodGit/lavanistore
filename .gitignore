@@ -1,0 +1,25 @@
+# Ignore environment files
+backend/.env
+frontend/.env
+
+# Ignore node modules
+backend/node_modules/
+frontend/node_modules/
+
+# Ignore docker compose
+docker-compose.yml
+*.yml--
+
+# Ignore sample data
+aksampledata/
+
+# Ignore README
+README.md
+
+# Ignore database backups
+RAW_MYSQL_BACKUP/
+*.sql
+
+# Logs
+logs/
+*.log
