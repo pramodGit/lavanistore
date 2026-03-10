@@ -9,6 +9,9 @@ frontend/node_modules/
 # Ignore docker compose
 docker-compose.yml
 *.yml--
+*.ts.--
+ls
+package-lock.json
 
 # Ignore sample data
 aksampledata/
