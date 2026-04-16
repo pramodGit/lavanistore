@@ -14,7 +14,7 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
-    allowedHosts: ['lavanistore.in', 'www.lavanistore.in']
+    allowedHosts: ['all']
   },
   base: "/"
 })
