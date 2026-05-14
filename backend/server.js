@@ -7,7 +7,7 @@ import app from "./app.js";
 dotenv.config();
 
 const numCPUs = os.cpus().length;
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
 if (cluster.isPrimary) {
   console.log(`Master ${process.pid} started`);

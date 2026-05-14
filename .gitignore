@@ -23,6 +23,8 @@ README.md
 RAW_MYSQL_BACKUP/
 *.sql
 
+storage/
+
 # Logs
 logs/
 *.log

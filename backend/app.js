@@ -34,14 +34,6 @@ if (process.env.USE_REDIS === "true") {
   app.use(redisMiddleware);
 }
 
-// Serve static images (no rate limiting)
-if (process.env.NODE_ENV !== "production") {
-  app.use(
-    "/cdn/images",
-    express.static("/home/ubuntu/LavaniDATA/cdn/images")
-  );
-}
-
 // Error +   limit
 app.use(errorHandler);
 app.use(apiLimiter);
@@ -49,7 +41,7 @@ app.use(rateLimiter);
 
 // Routes
 app.use("/api-doc", swagger_routes);
-app.use("/auth", auth_routes);
+app.use("/api/auth", auth_routes);
 app.use("/api", routes);
 
 // Root
