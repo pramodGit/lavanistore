@@ -77,7 +77,7 @@ export const getUserByUsername = async (
   username: string
 ): Promise<UserResponse> => {
   try {
-    const { data } = await api.get<UserResponse>(`/api/users/${username}`);
+    const { data } = await api.get<UserResponse>(`/users/${username}`);
     return data;
   } catch (error: any) {
     console.error("❌ Error fetching user data:", error);
@@ -89,7 +89,7 @@ export const getOrderHistory = async (
   username: string
 ): Promise<OrderHistoryItem[]> => {
   try {
-    const { data } = await api.get<OrderHistoryResponse>(`/api/users/${username}/order-history`);
+    const { data } = await api.get<OrderHistoryResponse>(`/users/${username}/order-history`);
     if (!data.success) {
       throw new Error("Failed to fetch order history");
     }

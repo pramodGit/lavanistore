@@ -33,7 +33,7 @@ const ProductDetail: React.FC = () => {
 
     const fetchProduct = async (pid: number) => {
       try {
-        const { data } = await api.get(`/api/products/${pid}`);
+        const { data } = await api.get(`/products/${pid}`);
 
         // Map backend response to frontend Product interface
         const mappedProduct: Product = {

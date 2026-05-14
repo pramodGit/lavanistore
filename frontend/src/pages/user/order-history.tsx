@@ -107,7 +107,7 @@ const OrderHistoryPage = () => {
                         <tbody>
                             {currentPageData.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} style={{ textAlign: "center" }}>No orders found.</td>
+                                    <td colSpan={5} style={{ textAlign: "center" }}>No orders found.</td>
                                 </tr>
                             ) : (
                                 currentPageData.map((o, index) => (
@@ -115,7 +115,7 @@ const OrderHistoryPage = () => {
                                         <td>{(page - 1) * pageSize + index + 1}</td>
                                         <td>{`invoice-${o.ORDER_ID}`}</td>
                                         <td>{new Date(o.ORDER_DATE).toLocaleDateString()}</td>
-                                        <td>₹ {o.TOTAL.toFixed(2)}</td>
+                                        <td>₹ {Number(o.TOTAL ?? 0).toFixed(2)}</td>
                                         <td>
                                             {o.DOWNLOAD ? (
                                                 <a href={`/files/${o.DOWNLOAD}`} target="_blank" rel="noreferrer">

@@ -54,8 +54,8 @@ const ProductListing: React.FC<ProductListingProps> = ({
         setLoading(true);
 
         const [prodRes, catRes] = await Promise.all([
-          api.get("/api/products"),
-          api.get("/api/categories"),
+          api.get("/products"),
+          api.get("/categories"),
         ]);
 
         // FIX 2: Explicitly ensure ALL category IDs are STRINGS

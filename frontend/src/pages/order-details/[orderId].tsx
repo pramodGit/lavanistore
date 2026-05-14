@@ -22,7 +22,7 @@ const OrderDetailsPage: React.FC = () => {
 
     const fetchOrder = async () => {
       try {
-        const { data } = await api.get(`/api/orders/${orderId}`, {
+        const { data } = await api.get(`/orders/${orderId}`, {
           params: { isGreen },
         });
 
