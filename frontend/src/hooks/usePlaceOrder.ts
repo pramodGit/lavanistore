@@ -39,7 +39,7 @@ export default function usePlaceOrder() {
 
       // Fetch GST rates for products
       const productIds = items.map((i) => i.id);
-      const { data: gstRates } = await api.post("/api/products/gst-rates", { productIds });
+      const { data: gstRates } = await api.post("/products/gst-rates", { productIds });
 
       // Prepare order items
       const payloadItems: OrderItem[] = items.map((item) => {

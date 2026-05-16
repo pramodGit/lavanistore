@@ -42,7 +42,7 @@ const OrderDetailsPage: React.FC = () => {
 
           return {
             id: item.Item_order_ID?.toString() ?? String(Math.random()),
-            PROD_Name: item.Product_Name,
+            PROD_Name: item.Product_name || item.Product_Name,
             SaleQty: qty,
             MRP: mrp,
             Sale_Price: salePrice,

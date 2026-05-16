@@ -23,7 +23,7 @@ const OrderSummary: React.FC = () => {
     (async () => {
       try {
         const productIds = pricedItems.map(i => i.id);
-        const { data } = await api.post("/api/products/gst-rates", { productIds });
+        const { data } = await api.post("/products/gst-rates", { productIds });
 
         let totalGST = 0;
 

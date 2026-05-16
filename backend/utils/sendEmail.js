@@ -20,7 +20,9 @@ export default async function sendEmail(to, subject, content) {
     }
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail', // Or replace with custom SMTP config
+      host: 'smtp.gmail.com', // Or replace with custom SMTP config
+      port: 587,
+      secure: false,           // STARTTLS (not SSL)
       auth: {
         user: USER,
         pass: PASS

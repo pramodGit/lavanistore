@@ -48,6 +48,6 @@ export interface OrderResponse {
 
 // Path to backend API endpoint: backend/controllers/orderController.js
 export const createOrder = async (orderData: OrderPayload): Promise<OrderResponse> => {
-  const { data } = await api.post<OrderResponse>("/api/orders", orderData);
+  const { data } = await api.post<OrderResponse>("/orders", orderData);
   return data;
 };

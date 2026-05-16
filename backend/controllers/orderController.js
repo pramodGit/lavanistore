@@ -1,5 +1,6 @@
 // backend/controllers/orderController.js
 import { pool as userPool, productPool } from "../db.js";
+import { generateInvoicePDF } from "../utils/generateInvoicePDF.js";
 import orderEmailTemplate from "../utils/orderEmailTemplate.js";
 import sendEmail from "../utils/sendEmail.js";
 import { sendSMS } from "../utils/smsAlert.js";
@@ -90,22 +91,9 @@ export const placeOrderController = async (req, res) => {
       ]
     );
   
-      // The second result set contains the output parameter
+    // The second result set contains the output parameter
     const saleId = rows[1][0].SaleID; 
     console.log("Inserted SaleID:", saleId);
-    // 2️⃣ Generate PDF name: INV_orderid_date_time.pdf
-    const timestamp = new Date()
-      .toISOString()
-      .replace(/[-T:]/g, "")
-      .split(".")[0]; // YYYYMMDDHHMMSS
-
-    const pdfName = `INV_${saleId}_${timestamp}.pdf`;
-
-    // 3️⃣ Update Sale_PDF in table
-    await connection.query(
-      `UPDATE product_sale_to_customerdetails SET Sale_PDF = ? WHERE SaleID = ?`,
-      [pdfName, saleId]
-    );
 
     // -----------------------
     // Insert Items & Invoice
@@ -227,6 +215,22 @@ export const placeOrderController = async (req, res) => {
       ]
     );
 
+    // 2️⃣ Generate PDF name: INV_orderid_date_time.pdf
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[-T:]/g, "")
+      .split(".")[0]; // YYYYMMDDHHMMSS
+
+    const pdfName = `INV_${saleId}_${timestamp}.pdf`;
+
+    // 3️⃣ Update Sale_PDF in table
+    await connection.query(
+      `UPDATE product_sale_to_customerdetails SET Sale_PDF = ? WHERE SaleID = ?`,
+      [pdfName, saleId]
+    );
+
+    console.log("📄 Sale_PDF updated as pdfName of saleId:", pdfName, saleId);
+
 
     // Get inserted customer ID
     const [result] = await connection.query("SELECT @customerId AS CustomerID;");
@@ -266,17 +270,38 @@ export const placeOrderController = async (req, res) => {
 
   } catch (err) {
     await connection.rollback();
-    console.error("Error placing order:", err);
-    return res.status(500).json({ error: "Failed to place order" });
+    console.error("========== ORDER ERROR START ==========");
+    console.error("Time:", new Date().toISOString());
+
+    console.error("Message:", err.message);
+    console.error("Code:", err.code);
+    console.error("Errno:", err.errno);
+    console.error("SQL State:", err.sqlState);
+    console.error("SQL Message:", err.sqlMessage);
+
+    console.error("SQL:", err.sql);
+
+    console.error("Stack:", err.stack);
+
+    // mysql2 stored procedure errors sometimes appear here
+    if (err.sqlMessage) {
+      console.error("MySQL Error:", err.sqlMessage);
+    }
+
+    console.error("Full Error Object:", JSON.stringify(err, null, 2));
+
+    console.error("========== ORDER ERROR END ==========");
+    return res.status(500).json({
+      error: "Failed to place order",
+      message: err.message,
+      code: err.code
+    });
   } finally {
     connection.release();
     userConn.release();
   }
 };
 
-//--------------------------------------------------------
-// ✅ GET ORDER + SEND EMAIL
-//--------------------------------------------------------
 //--------------------------------------------------------
 // ✅ GET ORDER + SEND EMAIL
 //--------------------------------------------------------
@@ -300,6 +325,7 @@ export const getOrderController = async (req, res) => {
     // Fetch all items for this SaleID
     // -----------------------
     const [items] = await connection.query(GET_ORDER_ITEMS_BY_SALE_ID, [sale.SaleID]);
+    console.log("🧾 First item:", JSON.stringify(items[0]));
 
     // -----------------------
     // Fetch customer details
@@ -380,28 +406,59 @@ export const getOrderController = async (req, res) => {
 
     const subject = `Your Lavani Wellness Order #${sale.SaleID} Details`;
 
-    const { html, text } = orderEmailTemplate(
-      customer.Customer_Name || "Customer",
-      mappedSale,
-      items,
-      isGreen
-    );
+    let html4Email = "";
+    let text4Email = "";
+
+    try {
+
+      const result = orderEmailTemplate(
+        customer.Customer_Name || "Customer",
+        mappedSale,
+        items,
+        isGreen
+      );
+
+      html4Email = result.html;
+      text4Email = result.text;
+      
+      const salePdfName = customer.Sale_PDF || pdfName;
+
+      // await generateInvoicePDF(html4Email, salePdfName);
+      await generateInvoicePDF(
+        customer.Customer_Name || "Customer",
+        mappedSale,
+        items,
+        isGreen,
+        salePdfName
+      );
+
+    } catch (pdfErr) {
+      console.error("⚠️ PDF generation failed (non-fatal):", pdfErr.message);
+    }
 
     // -----------------------
     // Send Email
     // -----------------------
     if (customer.Customer_Email) {
-      await sendEmail(customer.Customer_Email, subject, { html, text });
-      // console.log("✅ Email sent to:", customer.Customer_Email);
+      try {
+        await sendEmail(customer.Customer_Email, subject, { html: html4Email, text: text4Email });
+        console.log("✅ Email sent to:", customer.Customer_Email);
+      } catch (emailErr) {
+        console.error("⚠️ Failed to send email (non-fatal):", emailErr.message);
+      }
     }
 
     // -----------------------
     // Send SMS
     // -----------------------
     if (customer.Custome_Mobile) {
-      const smsText = `Hi ${customer.Customer_Name}, thanks for your purchase! Sale ID: ${sale.SaleID}, Total: ₹${totalAmount.toFixed(2)}`;
-      await sendSMS(customer.Custome_Mobile, smsText);
-      // console.log("✅ SMS sent to:", customer.Custome_Mobile);
+      try {
+        const smsText = `Hi ${customer.Customer_Name}, thanks for your purchase! Sale ID: ${sale.SaleID}, Total: ₹${totalAmount.toFixed(2)}`;
+        await sendSMS(customer.Custome_Mobile, smsText);
+        console.log("✅ SMS sent to:", customer.Custome_Mobile);
+      } catch (smsErr) {
+        console.error("⚠️ Failed to send SMS (non-fatal):", smsErr.message);
+      }
     }
 
     // -----------------------

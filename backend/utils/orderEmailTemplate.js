@@ -31,7 +31,7 @@ export default function orderEmailTemplate(customerName, sale, items, isGreen = 
       return `
         <tr>
           <td style="padding:4px;border:1px solid #ccc;text-align:center;">${index + 1}</td>
-          <td style="padding:4px;border:1px solid #ccc;">${item.Product_Name || item.PROD_Name || "-"}</td>
+          <td style="padding:4px;border:1px solid #ccc;">${item.Product_name || item.PROD_Name || item.Product_Name || "-"}</td>
           <td style="padding:4px;border:1px solid #ccc;text-align:center;">${qty}</td>
           <td style="padding:4px;border:1px solid #ccc;text-align:right;">${format(showPrice)}</td>
           <td style="padding:4px;border:1px solid #ccc;text-align:right;">${format(amount)}</td>
