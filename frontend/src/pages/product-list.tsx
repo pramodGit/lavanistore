@@ -5,6 +5,7 @@ import Header from "../layout/header";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import { AddToCartButton } from "../components/AddToCart";
+import withErrorBoundary from "../shared/errorBoundaryHOC";
 
 
 // UPDATE: Change categoryId type to number temporarily to match API, 
@@ -210,4 +211,6 @@ const ProductListing: React.FC<ProductListingProps> = ({
   );
 };
 
-export default ProductListing;
+// export default ProductListing;
+// export default withErrorBoundary(ProductListing);
+export default withErrorBoundary(ProductListing, <div>Something went wrong.</div>);
