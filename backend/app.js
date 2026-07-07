@@ -6,7 +6,7 @@ import bodyParser from "body-parser";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 
-import errorHandler from "./middlewares/error.js";
+import errorHandler from "./middlewares/errorMiddleware.js";
 import { apiLimiter, rateLimiter } from "./middlewares/rate-slow.js";
 import { redisMiddleware } from "./middlewares/redis.js";
 import { initRabbitMQ, closeRabbitMQ } from "./rabbitmq/rabbitmq.js";
@@ -34,8 +34,7 @@ if (process.env.USE_REDIS === "true") {
   app.use(redisMiddleware);
 }
 
-// Error +   limit
-app.use(errorHandler);
+// limit
 app.use(apiLimiter);
 app.use(rateLimiter);
 
@@ -43,6 +42,9 @@ app.use(rateLimiter);
 app.use("/api-doc", swagger_routes);
 app.use("/api/auth", auth_routes);
 app.use("/api", routes);
+
+// Error
+app.use(errorHandler);
 
 // Root
 app.get("/", (req, res) => {
