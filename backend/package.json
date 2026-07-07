@@ -10,6 +10,7 @@
   "author": "Pramod.Dev",
   "license": "ISC",
   "dependencies": {
+    "@google/genai": "^2.10.0",
     "amqplib": "^0.10.9",
     "axios": "^1.8.1",
     "bcrypt": "^6.0.0",

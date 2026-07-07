@@ -12,7 +12,9 @@ import { redisMiddleware } from "./middlewares/redis.js";
 import { initRabbitMQ, closeRabbitMQ } from "./rabbitmq/rabbitmq.js";
 import auth_routes from "./routes/authRoutes.js";
 import swagger_routes from "./routes/swagger-routes.js";
+
 import routes from "./routes/index.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 const app = express();
 
@@ -41,6 +43,7 @@ app.use(rateLimiter);
 // Routes
 app.use("/api-doc", swagger_routes);
 app.use("/api/auth", auth_routes);
+app.use("/api/ai", aiRoutes);
 app.use("/api", routes);
 
 // Error
