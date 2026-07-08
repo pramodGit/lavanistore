@@ -2,21 +2,21 @@
 
 import getOrder from "./tools/getOrder.js";
 
-export const tools = [
-  {
-    name: "getOrder",
-    description:
-      "Get complete details of a customer's order using the Sale ID.",
-    parameters: {
-      type: "object",
-      properties: {
-        orderId: {
-          type: "string",
-          description: "Sale ID of the order",
-        },
-      },
-      required: ["orderId"],
+export const toolRegistry = new Map();
+
+toolRegistry.set("getOrder", {
+  description: "Get order details by Sale ID.",
+
+  parameters: {
+    type: "object",
+    properties: {
+      orderId: {
+        type: "string",
+        description: "Sale ID"
+      }
     },
-    execute: getOrder,
+    required: ["orderId"]
   },
-];
+
+  execute: getOrder
+});
