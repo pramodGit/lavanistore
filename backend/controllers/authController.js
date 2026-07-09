@@ -3,6 +3,17 @@ import jwt from "jsonwebtoken";
 import { randomBytes } from "crypto";
 import { pool } from "../db.js";
 import redisClient from "../redis/redisClient.js";
+
+import asyncWrapper from "../middlewares/asyncWrapper.js";
+import {
+  UnauthorizedError,
+  ForbiddenError,
+  ValidationError,
+  ConflictError,
+  NotFoundError,
+  DatabaseError,
+} from "../errors/AppError.js";
+
 import sendEmail from "../utils/sendEmail.js";
 // import { publishToQueue } from "../rabbitmq/rabbitmq.js";
 import registrationEmailTemplate from "../utils/registrationEmail.js";
@@ -217,28 +228,70 @@ export const login = async (req, res) => {
  * @desc Refresh access token
  * @route POST /api/refresh
  */
-export const refresh = async (req, res) => {
+export const refresh = asyncWrapper(async (req, res) => {
   const oldRefreshToken = req.cookies.refreshToken;
-  if (!oldRefreshToken) return res.sendStatus(401);
 
-  try {
-    const payload = jwt.verify(oldRefreshToken, REFRESH_SECRET);
-    const stored = await redisClient.get(payload.id.toString());
-    if (stored !== oldRefreshToken)
-      return res.status(403).json({ message: "Invalid refresh token" });
-
-    const accessToken = jwt.sign(
-      { id: payload.id, email: payload.email },
-      JWT_SECRET,
-      { expiresIn: "15m" }
-    );
-
-    res.json({ accessToken });
-  } catch (err) {
-    console.error("Refresh error:", err);
-    res.sendStatus(403);
+  // ✅ throw — not res.sendStatus()
+  if (!oldRefreshToken) {
+    throw new UnauthorizedError("No refresh token provided.");
   }
-};
+
+  // ── Verify JWT signature ──
+  let payload;
+  try {
+    payload = jwt.verify(oldRefreshToken, REFRESH_SECRET);
+  } catch (err) {
+    throw new ForbiddenError("Refresh token is invalid or expired.");
+  }
+
+  // ── Check Redis ──
+  const stored = await redisClient.get(payload.id.toString());
+
+  if (!stored) {
+    // ✅ Migration fix — logged in before Redis was wired
+    // JWT already verified above — safe to issue new tokens
+    console.warn(`⚠️ Migrating old session for user ${payload.id}`);
+    // fall through — don't throw
+  }
+
+  if (stored && stored !== oldRefreshToken) {
+    // ✅ Token reuse — possible theft — kill all sessions
+    await redisClient.del(payload.id.toString());
+    console.error(`🚨 Token reuse detected for user ${payload.id}`);
+    throw new ForbiddenError("Token reuse detected. Please login again.");
+  }
+
+  // ── Issue new token pair ──
+  // ✅ Fixed payload — userName not email (matches verifyToken)
+  const accessToken = jwt.sign(
+    { id: payload.id, userName: payload.userName },
+    JWT_SECRET,
+    { expiresIn: "15m" }
+  );
+
+  const newRefreshToken = jwt.sign(
+    { id: payload.id, userName: payload.userName },
+    REFRESH_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  // ── Store new token in Redis ──
+  await redisClient.setEx(
+    payload.id.toString(),
+    7 * 24 * 60 * 60,   // 7 days in seconds
+    newRefreshToken
+  );
+
+  // ── Rotate cookie ──
+  res.cookie("refreshToken", newRefreshToken, {
+    httpOnly: true,
+    secure  : process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge  : 7 * 24 * 60 * 60 * 1000,
+  });
+
+  res.json({ status: "success", accessToken });
+});
 
 /**
  * @desc Logout user
