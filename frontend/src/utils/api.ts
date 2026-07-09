@@ -77,6 +77,17 @@ api.interceptors.response.use(
       _retry?: boolean
     };
 
+    // ✅ KEY FIX — never intercept auth endpoint errors
+    // login/register/forgot-password returning 401/403
+    // means wrong credentials — not expired session
+    const isAuthEndpoint = originalRequest?.url?.startsWith("/auth/");
+    if (isAuthEndpoint) {
+      // throw ApiError directly — let component handle it
+      const body    = error.response?.data as any;
+      const message = body?.message || body?.error || "Authentication failed.";
+      throw new ApiError(message, status ?? 401);
+    }
+
     // ── Network error (server down / no internet) ──
     if (!error.response) {
       throw new ApiError(
