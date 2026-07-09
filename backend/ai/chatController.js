@@ -5,9 +5,9 @@ import { chat } from "./chatService.js";
 
 export const chatController = asyncWrapper(async (req, res) => {
 
-    const { message } = req.body;
+    const { messages } = req.body;
 
-    const reply = await chat(message);
+    const reply = await chat(messages);
 
     res.json(reply);
 

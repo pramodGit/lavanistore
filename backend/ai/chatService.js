@@ -3,11 +3,20 @@
 import { ai } from "./providers/gemini.js";
 import { getGeminiTools, getTool } from "./toolHelpers.js";
 
-export async function chat(message) {
+export async function chat(messages) {
+
+  const contents = messages.map((m) => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [
+      {
+        text: m.text,
+      },
+    ],
+  }));
   // 1. Ask Gemini
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
-    contents: message,
+    contents,
     config: {
       tools: getGeminiTools(),
     },
@@ -48,24 +57,17 @@ export async function chat(message) {
       model: "gemini-2.5-flash",
 
       contents: [
-        {
-          role: "user",
-          parts: [
-            {
-              text: message
-            }
-          ]
-        },
+        ...contents,
         {
           role: "model",
           parts: [
             {
               functionCall: {
                 name,
-                args
-              }
-            }
-          ]
+                args,
+              },
+            },
+          ],
         },
         {
           role: "user",
@@ -73,12 +75,12 @@ export async function chat(message) {
             {
               functionResponse: {
                 name,
-                response: toolResult
-              }
-            }
-          ]
-        }
-      ]
+                response: toolResult,
+              },
+            },
+          ],
+        },
+      ],
     });
 
     return {
