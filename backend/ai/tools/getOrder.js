@@ -1,6 +1,6 @@
 // backend/ai/tools/getOrder.js
 
-import { getOrder } from "../../services/orderService.js";
+import { analyseOrder } from "../../services/ai/aiOrderService.js";
 
 export default async function ({ orderId }) {
   try {
