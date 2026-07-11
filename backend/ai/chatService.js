@@ -1,5 +1,6 @@
 import { ai } from "./providers/gemini.js";
 import { getGeminiTools, getTool } from "./toolHelpers.js";
+import { toGeminiContents } from "./utils/geminiMapper.js";
 
 import {
   getConversation,
@@ -18,14 +19,7 @@ export async function chat(conversationId, message) {
   });
 
   // Convert to Gemini format
-  const contents = history.map((m) => ({
-    role: m.role === "assistant" ? "model" : "user",
-    parts: [
-      {
-        text: m.text,
-      },
-    ],
-  }));
+  const contents = toGeminiContents(history);
 
   // Ask Gemini
   const response = await ai.models.generateContent({

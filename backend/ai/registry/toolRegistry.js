@@ -1,6 +1,6 @@
 // backend/ai/toolRegistry.js
 
-import getOrder from "./tools/getOrder.js";
+import getOrder from "../tools/getOrder.js";
 
 export const toolRegistry = new Map();
 
