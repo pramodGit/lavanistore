@@ -47,3 +47,9 @@ export class DatabaseError extends AppError {
     super(message, 500, false); // non-operational
   }
 }
+
+export const AI_ERRORS = {
+  QUOTA_EXCEEDED: "AI request limit reached. Please try again in a minute.",
+  AUTH_FAILED: "AI provider authentication failed.",
+  INVALID_REQUEST: "Invalid AI request.",
+};

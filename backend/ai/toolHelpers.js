@@ -1,4 +1,4 @@
-import { toolRegistry } from "./toolRegistry.js";
+import { toolRegistry } from "./registry/toolRegistry.js";
 
 export function getGeminiTools() {
   return [

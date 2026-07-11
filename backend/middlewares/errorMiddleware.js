@@ -1,27 +1,43 @@
-// backend/middlewares/error.js
-import { EventEmitter } from 'node:events';
-import { AppError } from '../errors/AppError.js';
+import { EventEmitter } from "node:events";
+import { AppError } from "../errors/AppError.js";
 
 export default function errorHandler(err, req, res, next) {
 
-  // ── 1. Always log full detail internally ──
+  // -----------------------------
+  // Internal Logging
+  // -----------------------------
   console.error("========== ERROR ==========");
   console.error("Time    :", new Date().toISOString());
   console.error("Route   :", req.method, req.originalUrl);
   console.error("Message :", err.message);
   console.error("Name    :", err.name);
 
-  // Log MySQL specific detail if present
   if (err.sqlMessage) {
     console.error("SQL Msg :", err.sqlMessage);
     console.error("SQL     :", err.sql);
     console.error("Code    :", err.code);
   }
+
   console.error("Stack   :", err.stack);
   console.error("===========================");
 
-  // ── 2. Known operational error (NotFoundError, ValidationError etc.) ──
-  // Safe to show message to client — we wrote this message ourselves
+  // -----------------------------
+  // Gemini / AI Rate Limit
+  // -----------------------------
+  if (
+    err.status === 429 ||
+    err.message?.includes("RESOURCE_EXHAUSTED") ||
+    err.message?.includes("Quota exceeded")
+  ) {
+    // return res.status(429).json({
+    //   status: "error",
+    //   message: "AI request limit reached. Please try again in a minute.",
+    // });
+  }
+
+  // -----------------------------
+  // Known Application Errors
+  // -----------------------------
   if (err instanceof AppError && err.isOperational) {
     return res.status(err.statusCode).json({
       status: "error",
@@ -29,30 +45,34 @@ export default function errorHandler(err, req, res, next) {
     });
   }
 
-  // ── 3. Unknown / unexpected error ──
-  // Never leak internals — generic message only
+  // -----------------------------
+  // Unknown Errors
+  // -----------------------------
   return res.status(500).json({
     status: "error",
     message: "Something went wrong. Please try again.",
   });
 }
 
-// ── EventEmitter error safety (keep as is) ──
+// -----------------------------
+// EventEmitter Safety
+// -----------------------------
 const myEmitter = new EventEmitter();
-myEmitter.on('error', (err) => {
-  console.error('Handled emitter error:', err);
+
+myEmitter.on("error", (err) => {
+  console.error("Handled emitter error:", err);
 });
 
-// ── Process-level safety (keep, but improve) ──
-process.on('uncaughtException', (error) => {
+// -----------------------------
+// Process Safety
+// -----------------------------
+process.on("uncaughtException", (error) => {
   console.error(`uncaughtException on pid ${process.pid}:`, error);
-  // Give pm2 time to log before exit
-  // pm2 will auto-restart the process
   process.exit(1);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise);
-  console.error('Reason:', reason);
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise);
+  console.error("Reason:", reason);
   process.exit(1);
 });
