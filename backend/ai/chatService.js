@@ -1,11 +1,24 @@
-// backend/ai/chatService.js
-
 import { ai } from "./providers/gemini.js";
 import { getGeminiTools, getTool } from "./toolHelpers.js";
 
-export async function chat(messages) {
+import {
+  getConversation,
+  saveConversation,
+} from "./memory/conversationStore.js";
 
-  const contents = messages.map((m) => ({
+export async function chat(conversationId, message) {
+
+  // Load previous conversation
+  const history = await getConversation(conversationId);
+
+  // Add latest user message
+  history.push({
+    role: "user",
+    text: message,
+  });
+
+  // Convert to Gemini format
+  const contents = history.map((m) => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [
       {
@@ -13,7 +26,8 @@ export async function chat(messages) {
       },
     ],
   }));
-  // 1. Ask Gemini
+
+  // Ask Gemini
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
     contents,
@@ -22,14 +36,17 @@ export async function chat(messages) {
     },
   });
 
-  // Optional: Debug
-  console.log(JSON.stringify(response, null, 2));
-
-  // 2. Check whether Gemini wants to call a tool
   const candidate = response.candidates?.[0];
   const part = candidate?.content?.parts?.[0];
 
+  let reply = response.text;
+
+  // -------------------------
+  // Tool Calling
+  // -------------------------
+
   if (part?.functionCall) {
+
     const { name, args } = part.functionCall;
 
     console.log("🔧 Tool Requested:", name);
@@ -41,21 +58,12 @@ export async function chat(messages) {
       throw new Error(`Tool '${name}' not found.`);
     }
 
-    // 3. Execute the tool
     const toolResult = await tool.execute(args);
 
     console.log("📤 Tool Result:", toolResult);
 
-    // Temporary response (next step will send this back to Gemini)
-    // return {
-    //   success: true,
-    //   tool: name,
-    //   data: toolResult,
-    // };
-
     const finalResponse = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-
       contents: [
         ...contents,
         {
@@ -75,23 +83,32 @@ export async function chat(messages) {
             {
               functionResponse: {
                 name,
-                response: toolResult,
+                response: {
+                  result: toolResult,
+                },
               },
             },
           ],
         },
       ],
+      config: {
+        tools: getGeminiTools(),
+      },
     });
 
-    return {
-      success: true,
-      reply: finalResponse.text
-    };
+    reply = finalResponse.text;
   }
 
-  // 4. Normal AI response (no tool required)
+  // Save assistant reply into memory
+
+  history.push({
+    role: "assistant",
+    text: reply,
+  });
+
+  await saveConversation(conversationId, history);
+
   return {
-    success: true,
-    reply: response.text,
+    reply,
   };
 }

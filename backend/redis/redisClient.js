@@ -1,3 +1,5 @@
+// backend/redis/redisClient.js
+
 import { createClient } from "redis";
 
 let redisClient;
@@ -29,6 +31,12 @@ if (process.env.NODE_ENV !== "test") {
     set: async () => "OK",
     del: async () => 1,
     quit: async () => {},
+    exists: async () => 0,
+    rPush: async () => 1,
+    lRange: async () => [],
+    lPop: async () => null,
+    expire: async () => 1,
+    keys: async () => [],
   };
 }
 
