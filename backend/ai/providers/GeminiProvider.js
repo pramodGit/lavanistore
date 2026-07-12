@@ -1,118 +1,105 @@
 import AIProvider from "./AIProvider.js";
 import { ai } from "./gemini.js";
 
-import { getGeminiTools, getTool } from "../toolHelpers.js";
+import settings from "../settings.js";
+import { getGeminiTools } from "../toolHelpers.js";
 import { AppError, AI_ERRORS } from "../../errors/AppError.js";
+import { customerPrompt } from "../prompts/index.js";
+import ToolExecutor from "../executors/toolExecutor.js";
+import Planner from "../planner/planner.js";
 
 export default class GeminiProvider extends AIProvider {
 
-  async chat(history) {
+  async chat(history, context) {
 
     try {
 
-      // Clone history so we can append messages
       const contents = [...history];
 
-      // First Gemini call
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+      const planner = new Planner();
+      const toolExecutor = new ToolExecutor();
+
+      let currentResponse = await ai.models.generateContent({
+        model: settings.model.gemini,
         contents,
         config: {
+          systemInstruction: customerPrompt,
           tools: getGeminiTools(),
+          temperature: settings.temperature,
+          maxOutputTokens: settings.maxOutputTokens,
         },
       });
 
-      const candidate = response.candidates?.[0];
-      const part = candidate?.content?.parts?.[0];
+      while (true) {
 
-      // -----------------------------
-      // Normal AI response (no tool)
-      // -----------------------------
-      if (!part?.functionCall) {
+        const plan = await planner.shouldContinue(currentResponse);
+
+        if (plan.type === "answer") {
+
+          contents.push({
+            role: "model",
+            parts: [
+              {
+                text: plan.message,
+              },
+            ],
+          });
+
+          return {
+            reply: plan.message,
+            history: contents,
+            context,
+          };
+
+        }
+
+        const toolResponse = await toolExecutor.execute(
+          {
+            name: plan.tool,
+            args: plan.args,
+          },
+          context
+        );
 
         contents.push({
           role: "model",
           parts: [
             {
-              text: response.text,
+              functionCall: {
+                name: toolResponse.name,
+                args: toolResponse.args,
+              },
             },
           ],
         });
 
-        return {
-          reply: response.text,
-          history: contents,
-        };
-      }
-
-      // -----------------------------
-      // Tool Calling
-      // -----------------------------
-      const { name, args } = part.functionCall;
-
-      console.log("🔧 Tool Requested:", name);
-      console.log("📥 Arguments:", args);
-
-      const tool = getTool(name);
-
-      if (!tool) {
-        throw new AppError(`Tool '${name}' not found.`, 500);
-      }
-
-      const toolResult = await tool.execute(args);
-
-      console.log("📤 Tool Result:", toolResult);
-
-      // Save function call
-      contents.push({
-        role: "model",
-        parts: [
-          {
-            functionCall: {
-              name,
-              args,
+        contents.push({
+          role: "user",
+          parts: [
+            {
+              functionResponse: {
+                name: toolResponse.name,
+                response: toolResponse.result,
+              },
             },
+          ],
+        });
+
+        currentResponse = await ai.models.generateContent({
+          model: settings.model.gemini,
+          contents,
+          config: {
+            systemInstruction: customerPrompt,
+            tools: getGeminiTools(),
+            temperature: settings.temperature,
+            maxOutputTokens: settings.maxOutputTokens,
           },
-        ],
-      });
+        });
 
-      // Save function response
-      contents.push({
-        role: "user",
-        parts: [
-          {
-            functionResponse: {
-              name,
-              response: toolResult,
-            },
-          },
-        ],
-      });
-
-      // Second Gemini call
-      const finalResponse = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents,
-      });
-
-      // Save assistant response
-      contents.push({
-        role: "model",
-        parts: [
-          {
-            text: finalResponse.text,
-          },
-        ],
-      });
-
-      return {
-        reply: finalResponse.text,
-        history: contents,
-      };
+      }
 
     } catch (err) {
 
-      // Gemini quota exceeded
       if (
         err?.status === 429 ||
         err?.message?.includes("RESOURCE_EXHAUSTED") ||
@@ -121,7 +108,6 @@ export default class GeminiProvider extends AIProvider {
         throw new AppError(AI_ERRORS.QUOTA_EXCEEDED, 429);
       }
 
-      // Invalid API key
       if (err?.status === 401) {
         throw new AppError(
           "AI provider authentication failed.",
@@ -129,7 +115,6 @@ export default class GeminiProvider extends AIProvider {
         );
       }
 
-      // Invalid request
       if (err?.status === 400) {
         throw new AppError(
           "Invalid AI request.",
@@ -137,9 +122,10 @@ export default class GeminiProvider extends AIProvider {
         );
       }
 
-      // Unknown error
       throw err;
+
     }
+
   }
 
 }
