@@ -15,12 +15,66 @@ export default class AgentExecutor {
 
   async execute(history, context) {
 
-    // Temporary migration.
-    // GeminiProvider still owns the agent loop.
-    return this.provider.chat(
-      history,
-      context
-    );
+    const contents = [...history];
+
+    while (true) {
+
+      const response = await this.provider.generate(contents);
+
+      const plan = this.planner.plan(response);
+
+      if (plan.type === "answer") {
+
+        contents.push({
+          role: "model",
+          parts: [
+            {
+              text: plan.message,
+            },
+          ],
+        });
+
+        return {
+          reply: plan.message,
+          history: contents,
+          context,
+        };
+
+      }
+
+      const tool = await this.toolExecutor.execute(
+        {
+          name: plan.tool,
+          args: plan.args,
+        },
+        context
+      );
+
+      contents.push({
+        role: "model",
+        parts: [
+          {
+            functionCall: {
+              name: tool.name,
+              args: tool.args,
+            },
+          },
+        ],
+      });
+
+      contents.push({
+        role: "user",
+        parts: [
+          {
+            functionResponse: {
+              name: tool.name,
+              response: tool.result,
+            },
+          },
+        ],
+      });
+
+    }
 
   }
 

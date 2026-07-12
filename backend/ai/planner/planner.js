@@ -4,7 +4,7 @@ import Plan from "./plan.js";
 
 export default class Planner {
 
-  async shouldContinue(response) {
+  plan(response) {
 
     const candidate = response.candidates?.[0];
     const part = candidate?.content?.parts?.[0];

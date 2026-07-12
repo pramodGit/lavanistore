@@ -2,8 +2,8 @@
 
 export default class AIProvider {
 
-  async chat() {
-    throw new Error("chat() must be implemented by the provider.");
+  async generate(contents) {
+    throw new Error("generate() must be implemented by the provider.");
   }
 
 }
