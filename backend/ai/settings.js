@@ -13,4 +13,26 @@ export default {
 
   maxOutputTokens: Number(process.env.AI_MAX_OUTPUT_TOKENS ?? 2048),
 
+  retry: {
+
+    enabled: true,
+
+    retries: 3,
+
+  },
+
+  pipeline: [
+
+    "generate",
+
+    "planner",
+
+    "tool",
+
+    "reflection",
+
+    "finish",
+
+  ],
+
 };

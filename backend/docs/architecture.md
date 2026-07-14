@@ -1,8 +1,8 @@
 # AI Agent Backend Architecture
 
-Version: v7
+Version: v8
 
-Status: Stable Foundation
+Status: Stable Workflow Engine
 
 ---
 
@@ -24,19 +24,25 @@ Status: Stable Foundation
              Provider Executor
                        │
                        ▼
-               Agent Executor
-      ┌──────────────┼──────────────┐
-      │              │              │
-      ▼              ▼              ▼
-   Planner     Tool Executor     Context
-      │              │
-      └──────────────┘
-              │
-              ▼
- GeminiProvider / OpenAIProvider
-              │
-              ▼
-        External AI Provider
+                Agent Pipeline
+                       │
+                       ▼
+              Pipeline Executor
+                       │
+                Stage Registry
+                       │
+      ┌────────┬────────┬────────┬────────┬────────┐
+      ▼        ▼        ▼        ▼        ▼
+ Generate  Planner   Tool   Reflection  Finish
+      ▲        │
+      └────────┘
+    (Workflow Loop)
+                       │
+                       ▼
+          GeminiProvider / OpenAIProvider
+                       │
+                       ▼
+               External AI Provider
 ```
 
 ---
@@ -68,31 +74,45 @@ ProviderExecutor
 
 ↓
 
-AgentExecutor
+AgentPipeline
 
 ↓
 
-Planner
+PipelineExecutor
 
 ↓
 
-Need Tool ?
+Generate Stage
 
-├── No
-│     ↓
-│   Return Answer
+↓
+
+Planner Stage
+
+↓
+
+Need Tool?
+
+├── Yes
+│      ↓
+│   Tool Stage
+│      ↓
+│   Generate Stage
 │
-└── Yes
-      ↓
-ToolExecutor
-      ↓
-Business Service
-      ↓
-Planner
-      ↓
-Provider
-      ↓
-Final Answer
+└── No
+       ↓
+Reflection Stage
+
+↓
+
+Finish Stage
+
+↓
+
+Save Conversation
+
+↓
+
+Return Response
 ```
 
 ---
@@ -108,8 +128,8 @@ ai/
 │     agentExecutor.js
 │
 ├── context/
-│     contextManager.js
 │     contextFormatter.js
+│     contextManager.js
 │
 ├── executors/
 │     providerExecutor.js
@@ -118,6 +138,20 @@ ai/
 ├── memory/
 │     conversationStore.js
 │     memoryManager.js
+│
+├── pipeline/
+│     agentPipeline.js
+│     pipelineExecutor.js
+│     pipelineState.js
+│     pipelineStage.js
+│     stageRegistry.js
+│
+│     stages/
+│         generateStage.js
+│         plannerStage.js
+│         toolStage.js
+│         reflectionStage.js
+│         finishStage.js
 │
 ├── planner/
 │     planner.js
@@ -130,9 +164,16 @@ ai/
 │     GeminiProvider.js
 │     OpenAIProvider.js
 │
+├── reflection/
+│     reflectionExecutor.js
+│     reflectionPrompt.js
+│
 ├── registry/
 │     providerRegistry.js
 │     toolRegistry.js
+│
+├── retry/
+│     retryExecutor.js
 │
 ├── tools/
 │
@@ -153,15 +194,17 @@ Receives HTTP requests.
 
 ## Chat Service
 
-Maintains conversation.
+Maintains conversations.
 
-Loads and saves history.
+Loads and saves conversation history.
 
 ---
 
 ## AI Service
 
-Coordinates the AI pipeline.
+Coordinates the AI workflow.
+
+Formats context before execution.
 
 ---
 
@@ -171,32 +214,82 @@ Selects the configured AI provider.
 
 ---
 
-## Agent Executor
+## Agent Pipeline
 
-Runs the complete reasoning loop.
+Coordinates the complete AI workflow.
 
 Responsible for:
 
-- planning
-- tool execution
-- retries
-- workflow
-- completion
+- workflow execution
+- pipeline state
+- provider interaction
+- final response
 
 ---
 
-## Planner
+## Pipeline Executor
 
-Decides whether AI should:
+Executes workflow stages.
+
+Supports:
+
+- configurable stages
+- branching
+- looping
+- extensibility
+
+---
+
+## Stage Registry
+
+Registers all available workflow stages.
+
+Examples:
+
+- Generate
+- Planner
+- Tool
+- Reflection
+- Finish
+
+---
+
+## Pipeline State
+
+Carries execution state across stages.
+
+Stores:
+
+- history
+- context
+- response
+- plan
+- tool result
+- retry info
+- final reply
+
+---
+
+## Generate Stage
+
+Communicates with the configured LLM.
+
+Supports retry policy.
+
+---
+
+## Planner Stage
+
+Determines whether the model should:
 
 - answer
-- execute tool
+- call a tool
 
 ---
 
-## Tool Executor
+## Tool Stage
 
-Executes backend tools.
+Executes backend business tools.
 
 Examples:
 
@@ -206,16 +299,32 @@ Examples:
 
 ---
 
+## Reflection Stage
+
+Improves response readability.
+
+Does not contain business logic.
+
+---
+
+## Finish Stage
+
+Marks workflow completion.
+
+Returns the final response.
+
+---
+
 ## Context
 
 Maintains application state.
 
 Examples:
 
-- customerId
+- current customer
+- current order
 - permissions
-- language
-- session
+- session data
 
 ---
 
@@ -231,19 +340,33 @@ No business logic.
 
 ✅ Provider Abstraction
 
+✅ Provider Registry
+
+✅ Workflow Engine
+
+✅ Pipeline Executor
+
+✅ Stage Registry
+
+✅ Pipeline State
+
+✅ Planner
+
 ✅ Tool Registry
 
 ✅ Tool Calling
 
-✅ Planner
+✅ Retry Executor
+
+✅ Reflection Stage
 
 ✅ Conversation Memory
 
 ✅ Session Context
 
-✅ Agent Executor
-
 ✅ Multi-turn Conversation
+
+✅ Dependency Injection
 
 ✅ Error Handling
 
@@ -251,51 +374,63 @@ No business logic.
 
 # Future Roadmap
 
-## Reflection
+## OpenAI Provider
 
-The agent evaluates its own answer before responding.
-
----
-
-## Retry Policy
-
-Automatically retries failed AI or tool operations.
+Support multiple AI providers.
 
 ---
 
-## Workflow Engine
+## Anthropic Provider
 
-Executes predefined business workflows.
-
----
-
-## Human Approval
-
-Pauses execution until user approval is received.
+Claude integration.
 
 ---
 
-## Multi-Agent
+## Streaming Responses
 
-Multiple AI agents collaborate to solve complex tasks.
-
----
-
-## MCP
-
-Connects the AI agent to external systems using the Model Context Protocol.
+Server Sent Events / WebSockets.
 
 ---
 
-## RAG
+## Parallel Tool Execution
 
-Retrieves relevant documents before generating a response.
+Execute multiple tools simultaneously.
+
+---
+
+## Human Approval Stage
+
+Pause workflow until approval.
+
+---
+
+## RAG Stage
+
+Retrieve knowledge before generation.
+
+---
+
+## MCP Integration
+
+Connect external systems using Model Context Protocol.
 
 ---
 
 ## Long-Term Memory
 
-Stores persistent knowledge across conversations.
+Persistent memory across conversations.
+
+---
+
+## Observability
+
+Tracing, metrics and workflow visualization.
+
+---
+
+## Multi-Agent Collaboration
+
+Multiple AI agents working together.
 
 ---
 
@@ -303,6 +438,9 @@ Stores persistent knowledge across conversations.
 
 - Single Responsibility
 - Provider Independent
+- Workflow Driven
+- Stage Based Execution
+- Dependency Injection
 - Extensible
 - Testable
 - Stateless Providers
@@ -314,35 +452,60 @@ Stores persistent knowledge across conversations.
 
 # Current Status
 
-## Architecture Stable
+```text
+                    Client
+                       │
+                       ▼
+                AI Controller
+                       │
+                       ▼
+                 Chat Service
+                       │
+                       ▼
+                  AI Service
+                       │
+                       ▼
+             Provider Executor
+                       │
+                       ▼
+                Agent Pipeline
+                       │
+                       ▼
+              Pipeline Executor
+                       │
+                Stage Registry
+                       │
+      ┌────────┬────────┬────────┬────────┬────────┐
+      ▼        ▼        ▼        ▼        ▼
+ Generate  Planner   Tool   Reflection  Finish
+      ▲        │
+      └────────┘
+    (Workflow Loop)
+                       │
+                       ▼
+          GeminiProvider / OpenAIProvider
+                       │
+                       ▼
+                 External AI Provider
+```
 
-                           Client
-                              │
-                              ▼
-                      AI Controller
-                              │
-                              ▼
-                      Chat Service
-                              │
-                              ▼
-                        AI Service
-                              │
-                              ▼
-                    Provider Executor
-                              │
-                              ▼
-                      Agent Executor
-      ┌────────────────────────┼────────────────────────┐
-      │                        │                        │
-      ▼                        ▼                        ▼
-   Planner              Tool Executor              Context
-      │                        │
-      └────────────────────────┘
-               │
-               ▼
-      GeminiProvider / OpenAIProvider
-               │
-               ▼
-            LLM Provider
+---
 
-### Future work will only add capabilities.
+# Current Status
+
+**Architecture Stable**
+
+The core backend architecture is complete.
+
+Future versions will focus on adding capabilities rather than changing the core architecture.
+
+Examples:
+
+- Additional AI providers
+- Streaming responses
+- RAG
+- MCP
+- Human approval
+- Multi-agent workflows
+- Long-term memory
+- Observability
