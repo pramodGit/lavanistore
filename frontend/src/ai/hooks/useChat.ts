@@ -1,61 +1,171 @@
-import { useState } from "react";
-import { sendMessage } from "../api/aiApi";
+// frontend/src/ai/hooks/useChat.ts
+
+import axios from "axios";
+import { useState, useCallback, useEffect } from "react";
+import { sendMessage, getConversation } from "../api/aiApi";
 import type { ChatMessage } from "../types/chat";
 
 export function useChat() {
+
+  const [conversationId, setConversationId] = useState(
+    () => localStorage.getItem("conversationId") ?? undefined
+  );
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+
   const [loading, setLoading] = useState(false);
 
-  async function send(text: string) {
-    if (!text.trim() || loading) return;
+  useEffect(() => {
 
-    const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: "user",
-      text,
-    };
+    if (!conversationId) return;
 
-    // Build updated conversation
-    const updatedMessages = [...messages, userMessage];
+    const id = conversationId;
 
-    // Show user message immediately
-    setMessages(updatedMessages);
-    setLoading(true);
+    async function load() {
 
-    try {
-      // Send conversation history (without id)
-      const response = await sendMessage(
-        updatedMessages.map(({ role, text }) => ({
-          role,
-          text,
-        }))
-      );
+      try {
 
-      const aiMessage: ChatMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        text: response.reply,
-      };
+        const response = await getConversation(id);
 
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (err) {
-      console.error(err);
+        const messages = response.conversation.history.map(
+          (m: {
+            role: string;
+            parts: { text: string }[];
+          }) => ({
+            id: crypto.randomUUID(),
+            role: m.role === "model"
+              ? "assistant"
+              : "user",
+            text: m.parts[0]?.text ?? "",
+          })
+        );
 
-      const errorMessage: ChatMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        text: "Sorry, something went wrong.",
-      };
+        setMessages(messages);
 
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setLoading(false);
+      } catch (err) {
+
+        console.error(err);
+
+        localStorage.removeItem("conversationId");
+
+        setConversationId(undefined);
+
+        setMessages([]);
+
+      }
+
     }
+
+    load();
+
+  }, [conversationId]);
+
+  function clearConversation() {
+
+    localStorage.removeItem("conversationId");
+
+    setConversationId(undefined);
+
+    setMessages([]);
+
   }
 
+  const send = useCallback(
+
+    async (text: string) => {
+
+      if (!text.trim() || loading) return;
+
+      const userMessage: ChatMessage = {
+
+        id: crypto.randomUUID(),
+
+        role: "user",
+
+        text,
+
+      };
+
+      // Functional update so we don't depend on messages
+      setMessages(prev => [...prev, userMessage]);
+
+      setLoading(true);
+
+      try {
+
+        const response = await sendMessage({
+
+          conversationId,
+
+          message: text,
+
+        });
+
+        setConversationId(response.conversationId);
+
+        localStorage.setItem(
+          "conversationId",
+          response.conversationId
+        );
+
+        const aiMessage: ChatMessage = {
+
+          id: crypto.randomUUID(),
+
+          role: "assistant",
+
+          text: response.reply,
+
+        };
+
+        setMessages(prev => [...prev, aiMessage]);
+
+      } catch (err) {
+
+        let message = "Sorry, something went wrong.";
+
+        if (axios.isAxiosError(err)) {
+          message =
+            err.response?.data?.message ??
+            message;
+        }
+
+        setMessages(prev => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            text: message,
+          },
+        ]);
+
+      } finally {
+
+        setLoading(false);
+
+      }
+
+    },
+
+    [
+      conversationId,
+      loading,
+    ]
+
+  );
+
   return {
+
+    conversationId,
+
     messages,
+
     loading,
+
     send,
+
+    clearConversation,
+
   };
+
 }

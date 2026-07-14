@@ -1,11 +1,14 @@
+// frontend/src/ai/components/ChatInput.tsx
+
 import { useState } from "react";
+import { memo } from "react";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
   loading: boolean;
 }
 
-export default function ChatInput({
+function ChatInput({
   onSend,
   loading,
 }: ChatInputProps) {
@@ -29,28 +32,18 @@ export default function ChatInput({
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: 10,
-        padding: 16,
-        borderTop: "1px solid #ddd",
-      }}
-    >
+    <div className="ai-input-row">
       <input
         type="text"
         placeholder="Ask Lavani AI..."
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
-        style={{
-          flex: 1,
-          padding: 12,
-          fontSize: 16,
-        }}
+        className="ai-input"
       />
 
       <button
+        className="ai-send-button"
         onClick={handleSend}
         disabled={loading}
       >
@@ -59,3 +52,5 @@ export default function ChatInput({
     </div>
   );
 }
+
+export default memo(ChatInput);

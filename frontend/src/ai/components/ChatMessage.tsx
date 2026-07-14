@@ -1,32 +1,32 @@
+// frontend/src/ai/components/ChatMessage.tsx
+
+import { memo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
 import type { ChatMessage as Message } from "../types/chat";
 
 interface Props {
   message: Message;
 }
 
-export default function ChatMessage({ message }: Props) {
+function ChatMessage({ message }: Props) {
+
   const isUser = message.role === "user";
 
   return (
     <div
-      style={{
-        display: "flex",
-        justifyContent: isUser ? "flex-end" : "flex-start",
-        marginBottom: 12,
-      }}
+      className={`ai-message ${
+        isUser ? "ai-user" : "ai-assistant"
+      }`}
     >
-      <div
-        style={{
-          padding: "10px 14px",
-          borderRadius: 10,
-          maxWidth: "70%",
-          background: isUser ? "#1976d2" : "#f3f3f3",
-          color: isUser ? "#fff" : "#000",
-          whiteSpace: "pre-wrap",
-        }}
-      >
-        {message.text}
+      <div className="ai-bubble">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {message.text}
+        </ReactMarkdown>
       </div>
     </div>
   );
 }
+
+export default memo(ChatMessage);

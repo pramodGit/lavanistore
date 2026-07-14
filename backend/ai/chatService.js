@@ -47,3 +47,17 @@ export async function chat(conversationId, message) {
   };
 
 }
+
+export async function loadConversation(conversationId) {
+
+  const history = await getConversation(conversationId);
+
+  const context = await getSessionContext(conversationId);
+
+  return {
+    conversationId,
+    history,
+    context,
+  };
+
+}

@@ -4,6 +4,7 @@ import "./assets/normalize.css";
 import "./assets/styles.css";
 import routes from "~react-pages";
 import { AuthProvider } from "./context/AuthContext";
+import AIChatWidget from "./ai/components/AIChatWidget";
 
 function AppRouter() {
   const location = useLocation();
@@ -34,6 +35,7 @@ const App: React.FC = () => {
     <BrowserRouter>
       <AuthProvider>
         <AppRouter />
+        <AIChatWidget />
       </AuthProvider>
     </BrowserRouter>
   );

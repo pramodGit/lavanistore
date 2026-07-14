@@ -1,3 +1,5 @@
+// backend/ai/chatController.js
+
 import asyncWrapper from "../middlewares/asyncWrapper.js";
 import { chat } from "./chatService.js";
 
@@ -32,3 +34,26 @@ export const chatController = asyncWrapper(async (req, res) => {
   });
 
 });
+
+export const getConversationController = asyncWrapper(async (req, res) => {
+
+    const { conversationId } = req.params;
+
+    if (!(await hasConversation(conversationId))) {
+
+      return res.status(404).json({
+        success: false,
+        message: "Conversation not found.",
+      });
+
+    }
+
+    const conversation =
+      await loadConversation(conversationId);
+
+    res.json({
+      success: true,
+      conversation,
+    });
+
+  });

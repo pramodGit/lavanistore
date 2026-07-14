@@ -1,7 +1,7 @@
 {
   "name": "lavani_wellness",
   "private": true,
-  "version": "0.0.1",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -24,9 +24,11 @@
     "qrcode": "^1.5.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.8.0",
     "recharts": "^3.1.2",
+    "remark-gfm": "^4.0.1",
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
