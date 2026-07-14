@@ -1,6 +1,6 @@
 # AI Agent Backend Architecture
 
-Version: v8
+Version: v9
 
 Status: Stable Workflow Engine
 
@@ -44,6 +44,42 @@ Status: Stable Workflow Engine
                        ▼
                External AI Provider
 ```
+
+---
+
+# Frontend Architecture
+
+User
+
+↓
+
+Floating AI Widget
+
+↓
+
+Chat Window
+
+↓
+
+ChatBot
+
+├── ChatHeader
+├── ChatBody
+├── ChatMessage
+├── TypingIndicator
+└── ChatInput
+
+↓
+
+useChat()
+
+↓
+
+AI API
+
+↓
+
+Backend /api/ai/chat
 
 ---
 
@@ -120,6 +156,37 @@ Return Response
 # Folder Structure
 
 ```text
+
+frontend/
+
+src/
+
+ai/
+
+├── api/
+│     aiApi.ts
+│
+├── hooks/
+│     useChat.ts
+│
+├── components/
+│     AIChatWidget.tsx
+│     FloatingButton.tsx
+│     ChatWindow.tsx
+│     ChatBot.tsx
+│     ChatHeader.tsx
+│     ChatBody.tsx
+│     ChatMessage.tsx
+│     ChatInput.tsx
+│     TypingIndicator.tsx
+│
+├── styles/
+│     chat-widget.css
+│
+└── types/
+      chat.ts
+
+
 backend/
 
 ai/
@@ -337,6 +404,20 @@ No business logic.
 ---
 
 # Current Features
+
+✅ Embedded Website AI Widget
+
+✅ Floating Chat Launcher
+
+✅ Conversation Persistence
+
+✅ Markdown Rendering
+
+✅ Modular React Components
+
+✅ React Performance Optimizations
+
+✅ New Chat Support
 
 ✅ Provider Abstraction
 
