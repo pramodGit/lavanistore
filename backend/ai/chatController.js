@@ -1,11 +1,12 @@
 // backend/ai/chatController.js
 
 import asyncWrapper from "../middlewares/asyncWrapper.js";
-import { chat } from "./chatService.js";
+import { chat, loadConversation } from "./chatService.js";
 
 import {
   createConversation,
   hasConversation,
+  getConversation,
 } from "./memory/conversationStore.js";
 
 export const chatController = asyncWrapper(async (req, res) => {
@@ -48,12 +49,11 @@ export const getConversationController = asyncWrapper(async (req, res) => {
 
     }
 
-    const conversation =
-      await loadConversation(conversationId);
+    const history = await getConversation(conversationId);
 
     res.json({
       success: true,
-      conversation,
+      history,
     });
 
   });

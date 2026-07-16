@@ -16,3 +16,13 @@ export interface ChatResponse {
   conversationId: string;
   reply: string;
 }
+
+export interface ConversationResponse {
+  success: boolean;
+  history: {
+    role: string;
+    parts: {
+      text: string;
+    }[];
+  }[];
+}

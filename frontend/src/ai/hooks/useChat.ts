@@ -21,42 +21,54 @@ export function useChat() {
 
     const id = conversationId;
 
+    let cancelled = false;
+
     async function load() {
 
       try {
 
         const response = await getConversation(id);
 
-        const messages = response.conversation.history.map(
-          (m: {
-            role: string;
-            parts: { text: string }[];
-          }) => ({
-            id: crypto.randomUUID(),
-            role: m.role === "model"
-              ? "assistant"
-              : "user",
-            text: m.parts[0]?.text ?? "",
-          })
-        );
+        const history: ChatMessage[] = response.history.map((m) => ({
+          id: crypto.randomUUID(),
+          role: m.role === "model" ? "assistant" : "user",
+          text: m.parts[0]?.text ?? "",
+        }));
 
-        setMessages(messages);
+        if (!cancelled) {
+          setMessages(history);
+        }
 
       } catch (err) {
 
         console.error(err);
 
-        localStorage.removeItem("conversationId");
+        // Only clear if conversation truly doesn't exist
+        if (
+          axios.isAxiosError(err) &&
+          err.response?.status === 404
+        ) {
 
-        setConversationId(undefined);
+          localStorage.removeItem("conversationId");
 
-        setMessages([]);
+          if (!cancelled) {
+            setConversationId(undefined);
+            setMessages([]);
+          }
 
+        }
+
+        // For 500 / 429 / network errors:
+        // Keep existing messages.
       }
 
     }
 
     load();
+
+    return () => {
+      cancelled = true;
+    };
 
   }, [conversationId]);
 

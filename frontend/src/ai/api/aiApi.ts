@@ -5,6 +5,7 @@ import axios from "axios";
 import type {
   ChatRequest,
   ChatResponse,
+  ConversationResponse,
 } from "../types/chat";
 
 export async function sendMessage(
@@ -19,7 +20,7 @@ export async function sendMessage(
 
 export async function getConversation(
     conversationId: string
-) {
+): Promise<ConversationResponse> {
     const { data } = await axios.get(
         `/api/ai/conversation/${conversationId}`
     );
