@@ -1,7 +1,5 @@
-// frontend/src/ai/components/ChatInput.tsx
-
-import { useState } from "react";
-import { memo } from "react";
+import { memo, useRef, useState } from "react";
+import { Paperclip, SendHorizontal } from "lucide-react";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -12,7 +10,18 @@ function ChatInput({
   onSend,
   loading,
 }: ChatInputProps) {
+
   const [text, setText] = useState("");
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const autoResize = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+
+    el.style.height = "0px";
+    el.style.height = `${Math.min(el.scrollHeight, 140)}px`;
+  };
 
   const handleSend = () => {
     const message = text.trim();
@@ -21,34 +30,51 @@ function ChatInput({
 
     onSend(message);
     setText("");
-  };
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) => {
-    if (e.key === "Enter") {
-      handleSend();
-    }
+    requestAnimationFrame(() => {
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "52px";
+      }
+    });
   };
 
   return (
-    <div className="ai-input-row">
-      <input
-        type="text"
-        placeholder="Ask Lavani AI..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKeyDown}
-        className="ai-input"
-      />
+    <div className="ai-footer">
 
-      <button
-        className="ai-send-button"
-        onClick={handleSend}
-        disabled={loading}
-      >
-        {loading ? "Thinking..." : "Send"}
-      </button>
+      <div className="ai-input-row">
+
+        <button className="ai-attach-btn">
+          <Paperclip size={20} />
+        </button>
+
+        <textarea
+          ref={textareaRef}
+          className="ai-input"
+          rows={1}
+          placeholder="Ask Lavani AI..."
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value);
+            autoResize();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            }
+          }}
+        />
+
+        <button
+          className="ai-send-button"
+          onClick={handleSend}
+          disabled={loading}
+        >
+          <SendHorizontal size={20} />
+        </button>
+
+      </div>
+
     </div>
   );
 }

@@ -42,16 +42,13 @@ function ChatBot({
       <ChatBody
         messages={messages}
         loading={loading}
+        onSuggestionClick={send}
       />
 
-      <div className="ai-footer">
-
-        <ChatInput
-          onSend={send}
-          loading={loading}
-        />
-
-      </div>
+      <ChatInput
+        onSend={send}
+        loading={loading}
+      />
 
     </>
 
