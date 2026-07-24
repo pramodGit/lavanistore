@@ -31,9 +31,9 @@ export default function CartItem({ id }: { id: string }) {
         )}
 
         <div className="quantity">
-          <button onClick={() => dispatch(decrementQuantity(item.id))}>−</button>
+          <button aria-label="Decrease quantity" onClick={() => dispatch(decrementQuantity(item.id))}>−</button>
           <span>{item.quantity}</span>
-          <button onClick={() => dispatch(incrementQuantity(item.id))}>+</button>
+          <button aria-label="Increase quantity" onClick={() => dispatch(incrementQuantity(item.id))}>+</button>
         </div>
       </div>
 

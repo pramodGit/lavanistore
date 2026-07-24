@@ -62,7 +62,8 @@ const ProductDetail: React.FC = () => {
       addItem({
         id: String(product.id),
         name: product.title,
-        price: product.price,
+        mrp: product.price,        // ✅ backend only returns one price; using it for both
+        salePrice: product.price,  // ✅ until backend also returns MRP for this endpoint
         quantity,
       })
     );
@@ -85,11 +86,31 @@ const ProductDetail: React.FC = () => {
 
             <div className="product-controls">
               <div className="qty">
-                <button className="btn">−</button>
-                <input className="qty-input" type="number" value={quantity} />
-                <button className="btn">+</button>
+                <button
+                  onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                  className="btn minus"
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  min={1}
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  className="qty-input"
+                />
+                <button
+                  onClick={() => setQuantity((prev) => prev + 1)}
+                  className="btn plus"
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
               </div>
-              <button className="add-btn">Add to Cart</button>
+              <button onClick={handleAddToCart} className="add-btn">
+                Add to Cart
+              </button>
             </div>
           </div>
         </div>
