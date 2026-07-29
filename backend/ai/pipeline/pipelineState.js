@@ -21,6 +21,8 @@ export default class PipelineState {
 
     this.done = false;
 
+    this.knowledge = [];
+
   }
 
 }

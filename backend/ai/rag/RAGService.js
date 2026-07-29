@@ -1,4 +1,11 @@
-import KnowledgeService from "../knowledge/KnowledgeService.js";
+// backend/ai/rag/RAGService.js
+
+import KnowledgeService from "../knowledge/knowledgeService.js";
+import VectorKnowledgeSource from "../knowledge/sources/VectorKnowledgeSource.js";
+
+import PromptBuilder from "./promptBuilder.js";
+
+import GeminiProvider from "../providers/GeminiProvider.js";
 
 export default class RAGService {
 
@@ -6,41 +13,54 @@ export default class RAGService {
 
     this.knowledge = new KnowledgeService();
 
+    this.promptBuilder = new PromptBuilder();
+
+    this.llm = new GeminiProvider();
+
   }
 
-  register(source) {
+  async initialize() {
 
-    this.knowledge.register(source);
+    const vectorSource =
+      new VectorKnowledgeSource();
+
+    await vectorSource.initialize();
+
+    this.knowledge.addSource(
+      vectorSource
+    );
 
   }
 
   async retrieve(query, options = {}) {
 
-    const documents = await this.knowledge.search(
+    return await this.knowledge.search(
       query,
       options
     );
-
-    return documents;
 
   }
 
-  async buildContext(query, options = {}) {
+  async ask(question, options = {}) {
 
     const documents = await this.retrieve(
-      query,
+      question,
       options
     );
 
-    if (!documents.length) {
-      return "";
-    }
+    const prompt = this.promptBuilder.build({
+      question,
+      documents,
+    });
 
-    return documents
-      .map((doc, index) => {
-        return `[${index + 1}] ${doc.content}`;
-      })
-      .join("\n\n");
+    const response = await this.llm.generate(
+      prompt
+    );
+
+    return {
+      answer: response.text,
+      documents,
+    };
 
   }
 

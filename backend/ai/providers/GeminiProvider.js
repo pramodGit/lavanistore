@@ -14,7 +14,7 @@ export default class GeminiProvider extends AIProvider {
 
     try {
 
-      return await ai.models.generateContent({
+      const response = await ai.models.generateContent({
         model: settings.model.gemini,
         contents,
         config: {
@@ -24,6 +24,19 @@ export default class GeminiProvider extends AIProvider {
           maxOutputTokens: settings.maxOutputTokens,
         },
       });
+
+      return {
+
+          text: response.text,
+
+          usage: response.usageMetadata,
+
+          finishReason:
+              response.candidates?.[0]?.finishReason,
+
+          raw: response,
+
+      };
 
     } catch (err) {
 

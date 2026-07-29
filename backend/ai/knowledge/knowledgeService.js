@@ -1,3 +1,5 @@
+// backend/ai/knowledge/knowledgeService.js
+
 export default class KnowledgeService {
 
   constructor() {
@@ -6,7 +8,7 @@ export default class KnowledgeService {
 
   }
 
-  register(source) {
+  addSource(source) {
 
     this.sources.push(source);
 
@@ -18,14 +20,12 @@ export default class KnowledgeService {
 
     for (const source of this.sources) {
 
-      const data = await source.search(
+      const documents = await source.search(
         query,
         options
       );
 
-      if (Array.isArray(data)) {
-        results.push(...data);
-      }
+      results.push(...documents);
 
     }
 

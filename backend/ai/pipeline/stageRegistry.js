@@ -25,6 +25,8 @@ const STAGES = {
   finish: () =>
     new FinishStage(),
 
+  rag: () => new RAGStage(),
+
 };
 
 export default class StageRegistry {

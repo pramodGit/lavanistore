@@ -1,0 +1,32 @@
+[
+  {
+    "index": 0,
+    "id": "distributor.md-1",
+    "source": "distributor.md",
+    "text": "# Distributor Program\n\nBecome a Lavani distributor by filling the enquiry form.\n\nOur sales team will contact you within two business days."
+  },
+  {
+    "index": 1,
+    "id": "faq.md-2",
+    "source": "faq.md",
+    "text": "# Frequently Asked Questions\n\n## How can I contact support?\n\nEmail: support@lavanistore.in\n\nPhone: +91-9876543210\n\n## Do you ship internationally?\n\nCurrently, we ship only within India."
+  },
+  {
+    "index": 2,
+    "id": "products.md-3",
+    "source": "products.md",
+    "text": "# Products\n\nLavani offers:\n\n- Protein Powder\n- Mass Gainer\n- Multivitamins\n- Whey Protein\n- Creatine"
+  },
+  {
+    "index": 3,
+    "id": "returns.md-4",
+    "source": "returns.md",
+    "text": "# Return Policy\n\nCustomers can return products within 7 days of delivery.\n\nReturned products must be unopened and unused.\n\nRefunds are processed within 5 business days after inspection."
+  },
+  {
+    "index": 4,
+    "id": "shipping.md-5",
+    "source": "shipping.md",
+    "text": "# Shipping Policy\n\nOrders are dispatched within 24 hours.\n\nDelivery usually takes 3–5 business days.\n\nFree shipping is available for orders above ₹999."
+  }
+]
