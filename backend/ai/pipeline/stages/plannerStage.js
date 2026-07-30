@@ -3,6 +3,8 @@
 import PipelineStage from "../pipelineStage.js";
 import Planner from "../../planner/planner.js";
 
+import { debug } from "../../../utils/logger.js";
+
 export default class PlannerStage extends PipelineStage {
 
   constructor() {
@@ -23,7 +25,7 @@ export default class PlannerStage extends PipelineStage {
       state.response
     );
 
-    console.log("===== PLAN =====");
+    debug("===== PLAN =====");
     console.dir(state.plan, { depth: null });
 
     return {

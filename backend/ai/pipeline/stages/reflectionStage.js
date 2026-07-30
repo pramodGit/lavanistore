@@ -3,6 +3,8 @@
 import PipelineStage from "../pipelineStage.js";
 import ReflectionExecutor from "../../reflection/reflectionExecutor.js";
 
+import { debug } from "../../../utils/logger.js";
+
 export default class ReflectionStage extends PipelineStage {
 
   constructor(provider) {
@@ -28,7 +30,7 @@ export default class ReflectionStage extends PipelineStage {
             message
         );
 
-    console.log("===== REFLECTION MESSAGE =====");
+    debug("===== REFLECTION MESSAGE =====");
     console.log(state.plan.message);
 
     state.history.push({

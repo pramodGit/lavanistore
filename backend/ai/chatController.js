@@ -9,6 +9,8 @@ import {
   getConversation,
 } from "./memory/conversationStore.js";
 
+import { debug } from "../utils/logger.js";
+
 export const chatController = asyncWrapper(async (req, res) => {
 
   let { conversationId, message } = req.body;
@@ -28,7 +30,7 @@ export const chatController = asyncWrapper(async (req, res) => {
 
   const result = await chat(conversationId, message);
 
-  console.log("===== API RESPONSE in Chat Controller =====");
+  debug("===== API RESPONSE in Chat Controller =====");
   console.dir(result, { depth: null });
 
   res.json({

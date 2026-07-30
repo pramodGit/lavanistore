@@ -7,6 +7,8 @@ import settings from "../../settings.js";
 import RAGService from "../../rag/RAGService.js";
 import PromptBuilder from "../../rag/promptBuilder.js";
 
+import { debug } from "../../../utils/logger.js";
+
 export default class GenerateStage extends PipelineStage {
 
   constructor(provider) {
@@ -51,8 +53,8 @@ export default class GenerateStage extends PipelineStage {
           state.history
         );
 
-      console.log("===== RESPONSE TEXT 1 =====");
-      console.log(state.response.text);
+      debug("===== RESPONSE TEXT 1 =====");
+      debug(state.response.text);
 
       state.toolExecuted = false;
 
@@ -94,8 +96,8 @@ export default class GenerateStage extends PipelineStage {
           prompt
         );
 
-      console.log("===== RESPONSE TEXT 2 =====");
-      console.log(state.response.text);
+      debug("===== RESPONSE TEXT 2 =====");
+      debug(state.response.text);
 
     } else {
 
