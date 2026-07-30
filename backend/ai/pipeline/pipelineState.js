@@ -17,8 +17,9 @@ export default class PipelineState {
     this.tool = null;
     this.reply = null;
 
-    this.retry = null;
+    this.toolExecuted = false;
 
+    this.retry = null;
     this.done = false;
 
     this.knowledge = [];

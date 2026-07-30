@@ -25,16 +25,22 @@ export default class GeminiProvider extends AIProvider {
         },
       });
 
+      const candidate = response.candidates?.[0];
+
+      const text = candidate?.content?.parts
+        ?.filter(part => typeof part.text === "string")
+        .map(part => part.text)
+        .join("") ?? "";
+
       return {
 
-          text: response.text,
+        text,
 
-          usage: response.usageMetadata,
+        usage: response.usageMetadata,
 
-          finishReason:
-              response.candidates?.[0]?.finishReason,
+        finishReason: candidate?.finishReason,
 
-          raw: response,
+        raw: response,
 
       };
 

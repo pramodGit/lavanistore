@@ -6,7 +6,7 @@ export default class Planner {
 
   plan(response) {
 
-    const candidate = response.candidates?.[0];
+    const candidate = response.raw?.candidates?.[0];
     const part = candidate?.content?.parts?.[0];
 
     if (!part?.functionCall) {

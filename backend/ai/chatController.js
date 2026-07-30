@@ -28,6 +28,9 @@ export const chatController = asyncWrapper(async (req, res) => {
 
   const result = await chat(conversationId, message);
 
+  console.log("===== API RESPONSE in Chat Controller =====");
+  console.dir(result, { depth: null });
+
   res.json({
     success: true,
     conversationId,

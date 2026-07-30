@@ -5,7 +5,7 @@ import RetryExecutor from "../../retry/retryExecutor.js";
 import settings from "../../settings.js";
 
 import RAGService from "../../rag/RAGService.js";
-import PromptBuilder from "../../rag/PromptBuilder.js";
+import PromptBuilder from "../../rag/promptBuilder.js";
 
 export default class GenerateStage extends PipelineStage {
 
@@ -43,6 +43,28 @@ export default class GenerateStage extends PipelineStage {
 
     await this.initialize();
 
+    // Second Gemini call after tool execution
+    if (state.toolExecuted) {
+
+      state.response =
+        await this.provider.generate(
+          state.history
+        );
+
+      console.log("===== RESPONSE TEXT 1 =====");
+      console.log(state.response.text);
+
+      state.toolExecuted = false;
+
+      return {
+        state,
+        next: "planner",
+      };
+
+    }
+
+    // -------- First Generate (RAG) --------
+
     // Latest user message
     const question =
       state.history.at(-1).parts[0].text;
@@ -71,6 +93,9 @@ export default class GenerateStage extends PipelineStage {
         await this.provider.generate(
           prompt
         );
+
+      console.log("===== RESPONSE TEXT 2 =====");
+      console.log(state.response.text);
 
     } else {
 

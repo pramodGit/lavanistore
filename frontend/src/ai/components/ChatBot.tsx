@@ -8,7 +8,7 @@ import ChatInput from "./ChatInput";
 
 interface Props {
 
-  onClose: () => void;
+  onClose?: () => void;
 
 }
 

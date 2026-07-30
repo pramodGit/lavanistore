@@ -26,6 +26,7 @@ export default class ToolStage extends PipelineStage {
     );
 
     state.tool = tool;
+    state.toolExecuted = true;
 
     state.history.push({
       role: "model",

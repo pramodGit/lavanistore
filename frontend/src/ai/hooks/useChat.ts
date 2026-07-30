@@ -29,11 +29,30 @@ export function useChat() {
 
         const response = await getConversation(id);
 
-        const history: ChatMessage[] = response.history.map((m) => ({
-          id: crypto.randomUUID(),
-          role: m.role === "model" ? "assistant" : "user",
-          text: m.parts[0]?.text ?? "",
-        }));
+        const history: ChatMessage[] = response.history
+
+          .filter((m) => {
+
+            const part = m.parts?.[0];
+
+            return (
+              typeof part?.text === "string" &&
+              part.text.trim().length > 0
+            );
+
+          })
+
+          .map((m) => ({
+
+            id: crypto.randomUUID(),
+
+            role: m.role === "model"
+              ? "assistant"
+              : "user",
+
+            text: m.parts[0].text,
+
+          }));
 
         if (!cancelled) {
           setMessages(history);

@@ -18,10 +18,18 @@ export default class ReflectionStage extends PipelineStage {
 
   async execute(state) {
 
+    const message =
+      state.plan.message ??
+      state.response.text ??
+      "";
+
     state.reply =
-      await this.reflectionExecutor.execute(
-        state.plan.message
-      );
+        await this.reflectionExecutor.execute(
+            message
+        );
+
+    console.log("===== REFLECTION MESSAGE =====");
+    console.log(state.plan.message);
 
     state.history.push({
       role: "model",

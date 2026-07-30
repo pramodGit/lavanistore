@@ -1,8 +1,8 @@
 import { memo } from "react";
 
 interface Props {
-  onClose: () => void;
-  onNewChat: () => void;
+  onClose?: () => void;
+  onNewChat?: () => void;
 }
 
 function ChatHeader({

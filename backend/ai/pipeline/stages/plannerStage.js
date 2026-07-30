@@ -17,9 +17,14 @@ export default class PlannerStage extends PipelineStage {
 
   async execute(state) {
 
+    // console.dir(state.response, { depth: null });
+
     state.plan = this.planner.plan(
       state.response
     );
+
+    console.log("===== PLAN =====");
+    console.dir(state.plan, { depth: null });
 
     return {
 
