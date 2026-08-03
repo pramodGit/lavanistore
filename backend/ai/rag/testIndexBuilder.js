@@ -1,3 +1,3 @@
-import { buildIndex } from "./indexBuilder.js";
+import IndexBuilder from "./indexBuilder.js";
 
-await buildIndex();
+await new IndexBuilder().build();

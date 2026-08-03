@@ -1,3 +1,5 @@
+// backend/ai/rag/indexBuilder.js
+
 import fs from "fs/promises";
 import path from "path";
 
@@ -14,89 +16,95 @@ const DATA_DIR = path.join(
   "data"
 );
 
-export async function buildIndex() {
+export default class IndexBuilder {
 
-  console.log("Loading documents...");
+  async build() {
 
-  const documents = await loadDocuments();
+    console.log("Loading documents...");
 
-  console.log(`Documents: ${documents.length}`);
+    const documents = await loadDocuments();
 
-  //-------------------------------------------------
+    console.log(`Documents: ${documents.length}`);
 
-  console.log("Chunking documents...");
+    //-----------------------------------------
 
-  const chunks = chunkDocuments(documents);
+    console.log("Chunking documents...");
 
-  console.log(`Chunks: ${chunks.length}`);
+    const chunks = chunkDocuments(documents);
 
-  //-------------------------------------------------
+    console.log(`Chunks: ${chunks.length}`);
 
-  console.log("Generating embeddings...");
+    //-----------------------------------------
 
-  const embeddedChunks =
-    await embedChunks(chunks);
+    console.log("Generating embeddings...");
 
-  console.log(`Embeddings: ${embeddedChunks.length}`);
+    const embeddedChunks =
+      await embedChunks(chunks);
 
-  //-------------------------------------------------
+    console.log(`Embeddings: ${embeddedChunks.length}`);
 
-  const vectorStore = new VectorStore();
+    //-----------------------------------------
 
-  vectorStore.add(
+    const vectorStore = new VectorStore();
 
-    embeddedChunks.map(
+    vectorStore.add(
 
-      chunk => chunk.vector
+      embeddedChunks.map(
+        chunk => chunk.vector
+      )
 
-    )
+    );
 
-  );
+    //-----------------------------------------
 
-  //-------------------------------------------------
+    await fs.mkdir(DATA_DIR, {
+      recursive: true,
+    });
 
-  await fs.mkdir(DATA_DIR, {
+    vectorStore.save(
+      path.join(DATA_DIR, "index.faiss")
+    );
 
-    recursive: true,
+    //-----------------------------------------
 
-  });
+    const metadata = embeddedChunks.map(
 
-  vectorStore.save(
+      ({ vector, ...chunk }, index) => ({
 
-    path.join(DATA_DIR, "index.faiss")
+        index,
 
-  );
+        ...chunk,
 
-  //-------------------------------------------------
+      })
 
-  const metadata = embeddedChunks.map(
+    );
 
-    ({ vector, ...chunk }, index) => ({
+    await fs.writeFile(
 
-      index,
+      path.join(DATA_DIR, "metadata.json"),
 
-      ...chunk,
+      JSON.stringify(metadata, null, 2)
 
-    })
+    );
 
-  );
+    //-----------------------------------------
 
-  await fs.writeFile(
+    console.log("Index Saved");
 
-    path.join(DATA_DIR, "metadata.json"),
+    console.log(
+      `Vectors Stored: ${vectorStore.size()}`
+    );
 
-    JSON.stringify(metadata, null, 2)
+    return {
 
-  );
+      documents: documents.length,
 
-  //-------------------------------------------------
+      chunks: chunks.length,
 
-  console.log("Index Saved");
+      vectors: vectorStore.size(),
 
-  console.log(
+    };
 
-    `Vectors Stored: ${vectorStore.size()}`
-
-  );
+  }
 
 }
