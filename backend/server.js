@@ -3,6 +3,8 @@ import os from "os";
 import dotenv from "dotenv";
 import { pool } from "./db.js";   // <- MySQL connection
 import app from "./app.js";
+import path from "path";
+import KnowledgeWatcher from "./ai/sync/knowledgeWatcher.js";
 
 dotenv.config();
 
@@ -11,6 +13,17 @@ const port = process.env.PORT || 3000;
 
 if (cluster.isPrimary) {
   console.log(`Master ${process.pid} started`);
+
+  const watcher = new KnowledgeWatcher(
+    path.join(
+      process.cwd(),
+      "ai",
+      "documents"
+    )
+  );
+
+  watcher.start();
+
   for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }

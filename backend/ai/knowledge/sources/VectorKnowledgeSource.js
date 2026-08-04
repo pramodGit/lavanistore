@@ -1,5 +1,6 @@
 import KnowledgeSource from "./KnowledgeSource.js";
-import Retriever from "../../rag/retriever.js";
+// import Retriever from "../../rag/retriever.js";
+import retriever from "../../rag/retrieverRegistry.js";
 
 export default class VectorKnowledgeSource
   extends KnowledgeSource {
@@ -8,7 +9,7 @@ export default class VectorKnowledgeSource
 
     super();
 
-    this.retriever = new Retriever();
+    this.retriever = retriever;
 
   }
 

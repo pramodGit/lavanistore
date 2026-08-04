@@ -1,3 +1,5 @@
+// backend/ai/rag/retriever.js
+
 import fs from "fs/promises";
 import path from "path";
 
@@ -11,34 +13,40 @@ const DATA_DIR = path.join(
   "data"
 );
 
-
 export default class Retriever {
 
   constructor() {
 
     this.provider = new LocalEmbeddingProvider();
 
-    this.vectorStore = new VectorStore();
+    this.vectorStore = null;
+
+    this.metadata = [];
 
   }
 
   async load() {
 
-    this.vectorStore.load(
+    const vectorStore = new VectorStore();
 
+    vectorStore.load(
       path.join(DATA_DIR, "index.faiss")
-
     );
 
     const json = await fs.readFile(
-
       path.join(DATA_DIR, "metadata.json"),
-
       "utf8"
-
     );
 
+    this.vectorStore = vectorStore;
+
     this.metadata = JSON.parse(json);
+
+  }
+
+  async reload() {
+
+    await this.load();
 
   }
 
@@ -51,11 +59,8 @@ export default class Retriever {
 
     const result =
       this.vectorStore.search(
-
         queryVector,
-
         k
-
       );
 
     return result.labels.map((index, i) => ({
