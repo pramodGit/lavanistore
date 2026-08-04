@@ -16,9 +16,6 @@ package-lock.json
 # Ignore sample data
 aksampledata/
 
-# Ignore README
-README.md
-
 # Ignore database backups
 RAW_MYSQL_BACKUP/
 *.sql
