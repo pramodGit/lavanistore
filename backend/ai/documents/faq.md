@@ -8,4 +8,4 @@ Phone: +91-9876543210
 
 ## Do you ship internationally?
 
-Currently, we ship only within India.
+Currently, we ship only within India(Delhi NCR).
